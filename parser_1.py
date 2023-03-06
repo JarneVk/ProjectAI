@@ -46,7 +46,7 @@ with open("input/100_5_14_25.csv") as csv_file:
         
         if i <= amount_requests + amount_zones + amount_vehicles + 1:
             # reading vehicles
-            list_vehicles.append(Vehiecels(int(row[0].strip("car"))))
+            list_vehicles.append(Vehicle(int(row[0].strip("car"))))
         
     pprint.pprint(list_reservations)
     pprint.pprint(list_zones)
