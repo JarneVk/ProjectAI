@@ -7,7 +7,7 @@ class Zone():
     neighbours:list[int]
 
 @dataclass
-class Vehiecels():
+class Vehicle():
     id:int
     zone:Zone = None
 
@@ -18,10 +18,10 @@ class Reservation():
     day:int
     start:int
     restime:int
-    possibleVehicels:list[int]
-    vehiecel:Vehiecels = None
+    possibleVehicles:list[int]
     p1:int
     p2:int
+    vehiecel:Vehicle = None
 
 @dataclass
 class Map():
