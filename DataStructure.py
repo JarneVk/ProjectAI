@@ -14,11 +14,12 @@ class Vehiecels():
 @dataclass
 class Reservation():
     id:str
-    zone:Zone
+    zone:int
     day:int
     start:int
     restime:int
     possibleVehicels:list[int]
+    vehiecel:Vehiecels = None
     p1:int
     p2:int
 
