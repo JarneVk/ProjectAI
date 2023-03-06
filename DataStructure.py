@@ -9,7 +9,7 @@ class Zone():
 @dataclass
 class Vehiecels():
     id:int
-    zone:Zone
+    zone:Zone = None
 
 @dataclass
 class Reservation():
@@ -18,7 +18,7 @@ class Reservation():
     day:int
     start:int
     restime:int
-    possibleVehicels:list[Vehiecels]
+    possibleVehicels:list[int]
     p1:int
     p2:int
 
