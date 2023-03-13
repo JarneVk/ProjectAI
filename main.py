@@ -10,6 +10,8 @@ import os
 import pprint
 import localSearch
 
+from ls import LocalSearch
+
 
 def main():
     #############################################################################
@@ -25,6 +27,11 @@ def main():
         filename = ["input", "toy1.csv"]
 
     reservations, zones, vehicles, interferences = parser_1.read_file(os.path.join("input", filename[-1]))
+
+    ls = LocalSearch(reservations, zones, vehicles, interferences)
+
+    ls.initialise()
+    print(ls.CheckAll())
 
     reservations, vehicles = init.initialise(reservations, zones, vehicles, interferences)
 
