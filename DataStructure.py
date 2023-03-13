@@ -14,7 +14,7 @@ class Vehicle():
 @dataclass(slots=True)
 class Reservation():
     id:str
-    zone:int
+    zone:Zone
     day:int
     start:int
     restime:int
