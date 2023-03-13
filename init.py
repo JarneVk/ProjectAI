@@ -15,7 +15,7 @@ def sortReservaties(reservaties: List[Reservation]):
 
 
 
-def initialise(reservaties: List[Reservation], zones: List[Zone], voertuigen: List[Vehicle]) -> Tuple[List[Reservation], List[Zone]]:
+def initialise(reservaties: List[Reservation], zones: List[Zone], voertuigen: List[Vehicle], interferences: List[List[bool]]) -> Tuple[List[Reservation], List[Zone]]:
     # problem: elke auto kan slechts op 1 reservatie staan?
 
     def sortNormal(reservatie: Reservation):
@@ -32,9 +32,10 @@ def initialise(reservaties: List[Reservation], zones: List[Zone], voertuigen: Li
                 res.vehiecel = voertuigen[posVeh]
                 voertuigen[posVeh].zone = res.zone
                 
-                for res2 in reservaties:
-                    if res2.zone.id == res.zone.id and res2.vehiecel is None:
-                        res2.vehiecel = voertuigen[posVeh]
+                # for res2 in reservaties:
+                #     if (res2.zone == res.zone) and (res2.vehiecel is None) and not (interferences[res.id][res2.id]):
+                #         res2.vehiecel = voertuigen[posVeh]
 
+    reservaties.sort(key=sortNormal)
 
     return reservaties, voertuigen
