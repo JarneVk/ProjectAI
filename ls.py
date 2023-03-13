@@ -19,10 +19,10 @@ class LocalSearch():
         self.reservations.sort(key=LocalSearch.sortNormal)
 
     def __init__(self, reservations: List[Reservation], zones: List[Zone], vehicles: List[Vehicle], interferences: List[List[bool]]) -> None:
-        self.reservations = reservations
-        self.zones = zones
-        self.vehicles = vehicles
-        self.interferences = interferences
+        self.reservations: List[Reservation] = reservations
+        self.zones: List[Zone] = zones
+        self.vehicles: List[Vehicle] = vehicles
+        self.interferences: List[List[bool]] = interferences
 
     def initialise(self):
         self.sortReservationsVehicles()
@@ -60,4 +60,45 @@ class LocalSearch():
 
         return True
     
+
+    def CalculateCosts(self) -> int:
+
+        total_cost = 0
+        for res in self.reservations:
+
+            # res not assigned
+            if res.vehicle == None:
+                total_cost += res.p1
+
+            # res assigned car in own zone
+            elif res.vehicle.zone == res.zone:
+                total_cost += 0
+
+            # res assigned in car in neighbouring zone 
+            elif res.vehicle.zone in res.zone.neighbours:
+                total_cost += res.p2
+
+        return total_cost
     
+
+    def carToZone(self, car: Vehicle, zone: Zone) -> bool:
+        assigned = False
+        for reservation in self.reservations:
+            if reservation.zone.id == zone.id and reservation.vehicle is None:
+                reservation.vehicle = car
+                car.zone = zone
+                assigned = True
+                
+        if not assigned:
+            print("not possible to assign vehicle to zone")
+
+    def switchCarToNeighbours(self, car: Vehicle) -> List[Reservation]:
+
+        currentCost = self.CalculateCosts(reservations, self.zones)
+        reservations_or = reservations
+
+        for z in car.zone.neighbours:
+            reservations = self.carToZone(car, self.zones[z], reservations)
+            if currentCost <= self.CalculateCosts(reservations, self.zones):
+                reservations = reservations_or
+        return reservations
