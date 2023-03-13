@@ -16,6 +16,7 @@ def sortReservaties(reservaties: List[Reservation]):
 
 
 def initialise(reservaties: List[Reservation], zones: List[Zone], voertuigen: List[Vehicle]) -> Tuple[List[Reservation], List[Zone]]:
+    # problem: elke auto kan slechts op 1 reservatie staan?
 
     def sortNormal(reservatie: Reservation):
         return reservatie.id
@@ -29,7 +30,11 @@ def initialise(reservaties: List[Reservation], zones: List[Zone], voertuigen: Li
             if posVeh not in used:
                 used.append(posVeh)
                 res.vehiecel = voertuigen[posVeh]
-                voertuigen[posVeh].zone = res.zone
-    reservaties.sort(key=sortNormal)
+                voertuigen[posVeh].zone = zones[res.zone]
+                
+                for res2 in reservaties:
+                    if res2.zone.id == res.zone.id and res2.vehiecel is None:
+                        res2.vehiecel = voertuigen[posVeh]
+
 
     return reservaties, voertuigen
