@@ -1,28 +1,29 @@
 from dataclasses import dataclass
 
 
-@dataclass
+@dataclass(slots=True)
 class Zone():
     id:int
     neighbours:list[int]
 
-@dataclass
-class Vehiecels():
+@dataclass(slots=True)
+class Vehicle():
     id:int
     zone:Zone = None
 
-@dataclass
+@dataclass(slots=True)
 class Reservation():
     id:str
-    zone:Zone
+    zone:int
     day:int
     start:int
     restime:int
-    possibleVehicels:list[int]
+    possibleVehicles:list[int]
     p1:int
     p2:int
+    vehiecel:Vehicle = None
 
-@dataclass
+@dataclass(slots=True)
 class Map():
     zones:list[Zone]
 
