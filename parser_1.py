@@ -2,6 +2,7 @@ import csv
 import pprint
 from DataStructure import *
 import DataStructure
+import numpy as np
 
 def read_file(filepath: str, debug: bool = False) -> tuple[list[DataStructure.Reservation], list[DataStructure.Zone], list[DataStructure.Vehicle]]:
     with open(filepath) as csv_file:
@@ -54,3 +55,10 @@ def read_file(filepath: str, debug: bool = False) -> tuple[list[DataStructure.Re
             pprint.pprint(list_zones)
             pprint.pprint(list_vehicles)
         return list_reservations, list_zones, list_vehicles
+    
+
+def reservationInterfeer(resList:list[DataStructure.Reservation]):
+    interList = [[False for x in range(len(resList))] for y in range(len(len(resList)))]
+
+    for res in resList:
+        pass
