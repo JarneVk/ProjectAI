@@ -88,6 +88,12 @@ class LocalSearch():
                 reservation.vehicle = car
                 car.zone = zone
                 assigned = True
+            
+            #also assign possible neigbours
+            elif reservation.vehiecel is None and zone.id in reservation.zone.neighbours:
+                reservation.vehiecel = car
+                car.zone = zone.id
+                assigned = True
                 
         if not assigned:
             print("not possible to assign vehicle to zone")
