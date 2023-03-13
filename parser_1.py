@@ -4,7 +4,7 @@ from DataStructure import *
 import DataStructure
 import numpy as np
 
-def read_file(filepath: str, debug: bool = False) -> tuple[list[DataStructure.Reservation], list[DataStructure.Zone], list[DataStructure.Vehicle]]:
+def read_file(filepath: str, debug: bool = False) -> tuple[list[DataStructure.Reservation], list[DataStructure.Zone], list[DataStructure.Vehicle], list[bool]]:
     with open(filepath) as csv_file:
         csv_reader = csv.reader(csv_file, delimiter=";")
         
@@ -46,7 +46,7 @@ def read_file(filepath: str, debug: bool = False) -> tuple[list[DataStructure.Re
                 amount_vehicles = int(row[0].split(": ")[1])
                 continue
             
-            if i <= amount_requests + amount_zones + amount_vehicles + 1:
+            if i <= amount_requests + amount_zones + amount_vehicles + 2:
                 # reading vehicles
                 list_vehicles.append(Vehicle(int(row[0].strip("car"))))
             
