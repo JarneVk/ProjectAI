@@ -17,8 +17,7 @@ def main():
     reservations, zones, vehicles, interferences = parser_1.read_file('input/100_5_14_25.csv')
 
     reservations, vehicles = init.initialise(reservations, zones, vehicles)
-    init_time = time.perf_counter()
-#    output.writeOutput(reservations, zones, vehicles, cost=100)
+    output.writeOutput(reservations, zones, vehicles, cost.CalculateCosts(reservations, zones))
 
     #make start solution
     print(control.CheckAll(reservations, vehicles, interferences))

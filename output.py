@@ -14,9 +14,9 @@ def writeOutput(reservations: List[Reservation], zones: List[Zone], vehicles: Li
             if reservation.vehiecel is None:
                 continue
             else:
-                file.write(f"{reservation.id};car{reservation.vehiecel.id}\n")
+                file.write(f"req{reservation.id};car{reservation.vehiecel.id}\n")
 
         file.write("+Unassigned requests\n")
         for reservation in reservations:
             if reservation.vehiecel is None:
-                file.write(f"{reservation.id}\n")
+                file.write(f"req{reservation.id}\n")
