@@ -29,7 +29,7 @@ def initialise(reservaties: List[Reservation], zones: List[Zone], voertuigen: Li
             if posVeh not in used:
                 used.append(posVeh)
                 res.vehiecel = voertuigen[posVeh]
-                voertuigen[posVeh].zone = zones[res.zone]
+                voertuigen[posVeh].zone = res.zone
     reservaties.sort(key=sortNormal)
 
     return reservaties, voertuigen
