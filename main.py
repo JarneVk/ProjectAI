@@ -20,6 +20,7 @@ def main():
     output.writeOutput(reservations, zones, vehicles, cost.CalculateCosts(reservations, zones))
 
     #make start solution
+    init_time = time.perf_counter()
     print(control.CheckAll(reservations, vehicles, interferences))
     print(cost.CalculateCosts(reservations, zones))
 
