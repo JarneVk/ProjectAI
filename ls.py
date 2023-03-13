@@ -24,6 +24,8 @@ class LocalSearch():
         self.vehicles: List[Vehicle] = vehicles
         self.interferences: List[List[bool]] = interferences
 
+
+    # Initialisatie
     def initialise(self):
         self.sortReservationsVehicles()
         used = []
@@ -37,7 +39,7 @@ class LocalSearch():
 
         self.sortReservationsID()
 
-
+    # control
     def checkAll(self) -> bool:
 
         for car in self.vehicles:
@@ -60,7 +62,7 @@ class LocalSearch():
 
         return True
     
-
+    # cost
     def calculateFullCosts(self) -> int:
 
         total_cost = 0
@@ -80,11 +82,11 @@ class LocalSearch():
 
         return total_cost
     
-
+    # localSearch
     def carToZone(self, car: Vehicle, zone: Zone) -> bool:
         assigned = False
         for reservation in self.reservations:
-            if reservation.zone.id == zone.id and reservation.vehicle is None:
+            if (reservation.zone.id == zone.id) and (reservation.vehicle is None):
                 reservation.vehicle = car
                 car.zone = zone
                 assigned = True
@@ -92,14 +94,18 @@ class LocalSearch():
         if not assigned:
             print("not possible to assign vehicle to zone")
 
-
     def switchCarToNeighbours(self, car: Vehicle) -> List[Reservation]:
 
-        currentCost = self.CalculateCosts(reservations, self.zones)
-        reservations_or = reservations
+        currentBestCost = self.calculateFullCosts()
+        reservationsBest = self.reservations
 
         for z in car.zone.neighbours:
-            reservations = self.carToZone(car, self.zones[z], reservations)
-            if currentCost <= self.calculateFullCosts(reservations, self.zones):
-                reservations = reservations_or
-        return reservations
+            self.carToZone(car, self.zones[z])
+            cost = self.calculateFullCosts()
+            if cost < currentBestCost and self.checkAll():
+                currentBestCost = cost
+                reservationsBest = self.reservations
+            else:
+                self.reservations = reservationsBest
+                
+        print(self.checkAll())
