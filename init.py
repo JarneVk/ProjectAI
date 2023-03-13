@@ -3,7 +3,7 @@ import pprint
 from DataStructure import *
 from typing import *
 
-5
+
 def sortReservaties(reservaties: List[Reservation]):
 
     def getPossibleAmountCars(reservatie: Reservation):
