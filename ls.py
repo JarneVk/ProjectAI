@@ -38,7 +38,7 @@ class LocalSearch():
         self.sortReservationsID()
 
 
-    def CheckAll(self) -> bool:
+    def checkAll(self) -> bool:
 
         for car in self.vehicles:
             # every car needs a zone
@@ -61,7 +61,7 @@ class LocalSearch():
         return True
     
 
-    def CalculateCosts(self) -> int:
+    def calculateFullCosts(self) -> int:
 
         total_cost = 0
         for res in self.reservations:
@@ -92,6 +92,7 @@ class LocalSearch():
         if not assigned:
             print("not possible to assign vehicle to zone")
 
+
     def switchCarToNeighbours(self, car: Vehicle) -> List[Reservation]:
 
         currentCost = self.CalculateCosts(reservations, self.zones)
@@ -99,6 +100,6 @@ class LocalSearch():
 
         for z in car.zone.neighbours:
             reservations = self.carToZone(car, self.zones[z], reservations)
-            if currentCost <= self.CalculateCosts(reservations, self.zones):
+            if currentCost <= self.calculateFullCosts(reservations, self.zones):
                 reservations = reservations_or
         return reservations
