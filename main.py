@@ -16,7 +16,7 @@ def main():
 
     reservations, vehicles = init.initialise(reservations, zones, vehicles)
 
-    output.writeOutput(reservations, zones, vehicles)
+    output.writeOutput(reservations, zones, vehicles, cost=100)
 
     #make start solution
     print(control.CheckAll(reservations, vehicles, interferences))
