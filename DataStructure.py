@@ -1,17 +1,17 @@
 from dataclasses import dataclass
 
 
-@dataclass
+@dataclass(slots=True)
 class Zone():
     id:int
     neighbours:list[int]
 
-@dataclass
+@dataclass(slots=True)
 class Vehicle():
     id:int
     zone:Zone = None
 
-@dataclass
+@dataclass(slots=True)
 class Reservation():
     id:str
     zone:int
@@ -23,7 +23,7 @@ class Reservation():
     p2:int
     vehiecel:Vehicle = None
 
-@dataclass
+@dataclass(slots=True)
 class Map():
     zones:list[Zone]
 

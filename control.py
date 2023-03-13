@@ -1,7 +1,7 @@
 import DataStructure
 
 
-def CheckAll(reservationList:list[DataStructure.Reservation],cars:list[DataStructure.Vehicle],resInterferList:list[bool][bool]) -> bool:
+def CheckAll(reservationList:list[DataStructure.Reservation],cars:list[DataStructure.Vehicle],resInterferList:list[bool][bool],map:DataStructure.Map) -> bool:
 
     for car in cars:
         #every car needs a zone
@@ -13,6 +13,10 @@ def CheckAll(reservationList:list[DataStructure.Reservation],cars:list[DataStruc
         for indx,inter in enumerate(resInterferList[res.id]):
             if inter == True and res.vehiecel == reservationList[indx].vehiecel:
                 return False
+        
+        #check if car is in nabourzone
+        if res.zone not in res.vehiecel.zone.neighbours:
+            return False
 
     return True
 
