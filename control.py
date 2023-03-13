@@ -1,27 +1,26 @@
+from typing import *
 import DataStructure
 
 
-def CheckAll(reservationList:list[DataStructure.Reservation],cars:list[DataStructure.Vehicle],resInterferList:list[bool]) -> bool:
+def CheckAll(reservationList: List[DataStructure.Reservation], cars: List[DataStructure.Vehicle], resInterferList: List[List[bool]]) -> bool:
 
     for car in cars:
-        #every car needs a zone
+        # every car needs a zone
         if car.zone == None:
-            print("geen zone toegekent aan auto")
+            print(f"auto {car.id} does not have a zone assigned")
             return False
         
-    for res in reservationList:    
+    for res in reservationList:
+
+        # reservation is not filled in
         if res.vehiecel == None:
-            break
-        #two cars can't overlop in time
-        for indx,inter in enumerate(resInterferList[res.id]):
+            continue
+
+        # two reservations for the same car intervene
+        for indx, inter in enumerate(resInterferList[res.id]):
             if inter == True and res.vehiecel == reservationList[indx].vehiecel:
-                print(f"overlappende reservaties r1: {res} | r2: {reservationList[indx]} | index {indx},{res.id}")
+                print(f"overlapping reservations r1: {res.id} | r2: {reservationList[indx].id}")
                 return False
-        
-        #check if car is in nabourzone
-        if res.zone not in res.vehiecel.zone.neighbours and res.zone != res.vehiecel.zone.id:
-            print(f"car {res} not in nabour zone {res.vehiecel.zone}")
-            return False
 
     return True
 
