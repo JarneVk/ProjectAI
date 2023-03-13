@@ -14,10 +14,10 @@ def main():
     #
     #############################################################################
     start_time = time.perf_counter()
-    reservations, zones, vehicles, interferences = parser_1.read_file('input/100_5_14_25.csv')
+    reservations, zones, vehicles, interferences = parser_1.read_file('input/toy1.csv')
 
     reservations, vehicles = init.initialise(reservations, zones, vehicles)
-    output.writeOutput(reservations, zones, vehicles, cost.CalculateCosts(reservations, zones))
+    output.writeOutput("output/toy1.csv", reservations, zones, vehicles, cost.CalculateCosts(reservations, zones))
 
     #make start solution
     init_time = time.perf_counter()

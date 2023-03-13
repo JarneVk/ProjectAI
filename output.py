@@ -1,8 +1,8 @@
 from DataStructure import *
 from typing import *
 
-def writeOutput(reservations: List[Reservation], zones: List[Zone], vehicles: List[Vehicle], cost: int):
-    with open("output/test_1.csv", 'w') as file:
+def writeOutput(filename: str,reservations: List[Reservation], zones: List[Zone], vehicles: List[Vehicle], cost: int):
+    with open(filename, 'w') as file:
         file.write(f"{cost}\n")
         file.write(f"+Vehicle assignments\n")
 
