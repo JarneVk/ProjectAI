@@ -8,6 +8,7 @@ import time
 import sys
 import os
 import pprint
+import localSearch
 
 
 def main():
@@ -26,6 +27,11 @@ def main():
     reservations, zones, vehicles, interferences = parser_1.read_file(os.path.join("input", filename[-1]))
 
     reservations, vehicles = init.initialise(reservations, zones, vehicles, interferences)
+
+    output.writeOutput(os.path.join("output", "temp1.csv"), reservations, zones, vehicles, cost.CalculateCosts(reservations, zones))
+
+    # reservations = localSearch.switchCarToNeighbours(car = vehicles[0], reservations = reservations, zones = zones, costFunction = cost.CalculateCosts)
+
     output.writeOutput(os.path.join("output", filename[-1]), reservations, zones, vehicles, cost.CalculateCosts(reservations, zones))
 
     #make start solution
