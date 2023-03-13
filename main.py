@@ -5,6 +5,9 @@ import control
 import init
 import output
 import time
+import sys
+import os
+import pprint
 
 
 def main():
@@ -14,10 +17,16 @@ def main():
     #
     #############################################################################
     start_time = time.perf_counter()
-    reservations, zones, vehicles, interferences = parser_1.read_file('input/toy1.csv')
 
-    reservations, vehicles = init.initialise(reservations, zones, vehicles)
-    output.writeOutput("output/toy1.csv", reservations, zones, vehicles, cost.CalculateCosts(reservations, zones))
+    if len(sys.argv) > 1:
+        filename = os.path.split(sys.argv[-1])
+    else:
+        filename = ["input", "toy1.csv"]
+
+    reservations, zones, vehicles, interferences = parser_1.read_file(os.path.join("input", filename[-1]))
+
+    reservations, vehicles = init.initialise(reservations, zones, vehicles, interferences)
+    output.writeOutput(os.path.join("output", filename[-1]), reservations, zones, vehicles, cost.CalculateCosts(reservations, zones))
 
     #make start solution
     init_time = time.perf_counter()
