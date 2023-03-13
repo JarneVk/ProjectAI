@@ -3,17 +3,18 @@ import pprint
 from DataStructure import *
 import DataStructure
 import numpy as np
+from typing import *
 
-def read_file(filepath: str, debug: bool = False) -> tuple[list[DataStructure.Reservation], list[DataStructure.Zone], list[DataStructure.Vehicle], list[bool]]:
+def read_file(filepath: str, debug: bool = False) -> Tuple[List[DataStructure.Reservation], List[DataStructure.Zone], List[DataStructure.Vehicle], List[bool]]:
     with open(filepath) as csv_file:
         csv_reader = csv.reader(csv_file, delimiter=";")
         
         amount_requests: int = 0
         amount_zones: int = 0
         amount_vehicles: int = 0
-        list_reservations = []
-        list_zones = []
-        list_vehicles = []
+        list_reservations: List[Reservation] = []
+        list_zones: List[Zone] = []
+        list_vehicles: List[Vehicle] = []
         
         for i, row in enumerate(csv_reader):
             if i == 0:
@@ -54,6 +55,10 @@ def read_file(filepath: str, debug: bool = False) -> tuple[list[DataStructure.Re
             pprint.pprint(list_reservations)
             pprint.pprint(list_zones)
             pprint.pprint(list_vehicles)
+
+        for res in list_reservations:
+            zone_id = res.zone
+            res.zone = list_zones[zone_id]
 
         #make reservation interference list
         interList = reservationInterfeer(list_reservations)
