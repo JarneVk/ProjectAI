@@ -29,12 +29,12 @@ def initialise(reservaties: List[Reservation], zones: List[Zone], voertuigen: Li
         for posVeh in res.possibleVehicles:
             if posVeh not in used:
                 used.append(posVeh)
-                res.vehiecel = voertuigen[posVeh]
+                res.vehicle = voertuigen[posVeh]
                 voertuigen[posVeh].zone = res.zone
                 
                 # for res2 in reservaties:
-                #     if (res2.zone == res.zone) and (res2.vehiecel is None) and not (interferences[res.id][res2.id]):
-                #         res2.vehiecel = voertuigen[posVeh]
+                #     if (res2.zone == res.zone) and (res2.vehicle is None) and not (interferences[res.id][res2.id]):
+                #         res2.vehicle = voertuigen[posVeh]
 
     reservaties.sort(key=sortNormal)
 

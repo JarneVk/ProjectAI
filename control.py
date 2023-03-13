@@ -13,12 +13,12 @@ def CheckAll(reservationList: List[DataStructure.Reservation], cars: List[DataSt
     for res in reservationList:
 
         # reservation is not filled in
-        if res.vehiecel == None:
+        if res.vehicle == None:
             continue
 
         # two reservations for the same car intervene
         for indx, inter in enumerate(resInterferList[res.id]):
-            if inter == True and res.vehiecel == reservationList[indx].vehiecel:
+            if inter == True and res.vehicle == reservationList[indx].vehicle:
                 print(f"overlapping reservations r1: {res.id} | r2: {reservationList[indx].id}")
                 return False
 

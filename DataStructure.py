@@ -21,7 +21,7 @@ class Reservation():
     possibleVehicles:list[int]
     p1:int
     p2:int
-    vehiecel:Vehicle = None
+    vehicle:Vehicle = None
 
 @dataclass(slots=True)
 class Map():

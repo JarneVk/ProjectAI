@@ -7,15 +7,15 @@ def CalculateCosts(reservatorions: List[DataStructure.Reservation], zones: List[
     for res in reservatorions:
 
         # res not assigned
-        if res.vehiecel == None:
+        if res.vehicle == None:
             total_cost += res.p1
 
         # res assigned car in own zone
-        elif res.vehiecel.zone.id == res.zone:
+        elif res.vehicle.zone.id == res.zone:
             total_cost += 0
 
         # res assigned in car in neighbouring zone 
-        elif res.vehiecel in res.zone.neighbours:
+        elif res.vehicle in res.zone.neighbours:
             total_cost += res.p2
 
     return total_cost
