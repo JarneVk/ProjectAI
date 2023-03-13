@@ -65,6 +65,19 @@ def read_file(filepath: str, debug: bool = False) -> Tuple[List[DataStructure.Re
 
         return list_reservations, list_zones, list_vehicles, interList
     
+def doesInterfere(res1: DataStructure.Reservation, res2: DataStructure.Reservation) -> bool:
+    # interference if start AND/OR end of second is in duration of first reservation
+
+    start_1 = res1.start
+    end_1 = res1.start + res1.restime
+    start_2 = res2.start
+    end_2 = res2.start + res2.restime
+
+    if start_1 < start_2 and start_2 < end_1:
+        return True
+    elif start_1 < end_2 and end_2 < end_1:
+        return True
+    return False
 
 def reservationInterfeer(resList:list[DataStructure.Reservation]):
     interList = [[False for x in range(len(resList))] for y in range(len(resList))]
@@ -72,15 +85,17 @@ def reservationInterfeer(resList:list[DataStructure.Reservation]):
     for idx1,res1 in enumerate(resList):
         for idx2,res2 in enumerate(resList):
             if res1.id == res2.id:
-                pass
+                continue
             
             elif res1.day == res2.day:
-                if res1.start < res2.start and res1.start+res1.restime > res2.start:
-                    interList[idx1][idx2] = True
-                elif res1.start < res2.start+res2.restime and res1.start+res1.restime > res2.start+res2.restime:
-                    interList[idx1][idx2] = True
-                elif res1.start > res2.start and res1.start+res1.restime < res2.start+res2.restime:
-                    interList[idx1][idx2] = True
-                elif res2.start > res1.start and res2.start+res2.restime < res1.start+res1.restime:
-                    interList[idx1][idx2] = True
+                interList[idx1][idx2] = doesInterfere(res1, res2)
+                # print(res1.id, interList[idx1][idx2], res2.id)
+                # if res1.start < res2.start and res1.start+res1.restime > res2.start:
+                #     interList[idx1][idx2] = True
+                # elif res1.start < res2.start+res2.restime and res1.start+res1.restime > res2.start+res2.restime:
+                #     interList[idx1][idx2] = True
+                # elif res1.start > res2.start and res1.start+res1.restime < res2.start+res2.restime:
+                #     interList[idx1][idx2] = True
+                # elif res2.start > res1.start and res2.start+res2.restime < res1.start+res1.restime:
+                #     interList[idx1][idx2] = True
     return interList
