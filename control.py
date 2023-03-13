@@ -6,16 +6,20 @@ def CheckAll(reservationList:list[DataStructure.Reservation],cars:list[DataStruc
     for car in cars:
         #every car needs a zone
         if car.zone == None:
+            print("geen zone toegekent aan auto")
             return False
 
     for res in reservationList:    
         #two cars can't overlop in time
         for indx,inter in enumerate(resInterferList[res.id]):
+            print(f"id :{res.id} | {inter}")
             if inter == True and res.vehiecel == reservationList[indx].vehiecel:
+                print(f"overlappende reservaties r1: {res} | r2: {reservationList[indx]} | index {indx},{res.id}")
                 return False
         
         #check if car is in nabourzone
-        if res.zone not in res.vehiecel.zone.neighbours:
+        if res.zone not in res.vehiecel.zone.neighbours and res.zone != res.vehiecel.zone.id:
+            print(f"car {res} not in nabour zone {res.vehiecel.zone}")
             return False
 
     return True

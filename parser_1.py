@@ -22,7 +22,7 @@ def read_file(filepath: str, debug: bool = False) -> tuple[list[DataStructure.Re
             
             if i <= amount_requests:
                 # reading reservations
-                ID = row[0]
+                ID = int(row[0][3:])
                 zone = int(row[1].strip("z"))
                 day = int(row[2])
                 start = int(row[3])
@@ -66,10 +66,10 @@ def reservationInterfeer(resList:list[DataStructure.Reservation]):
 
     for idx1,res1 in enumerate(resList):
         for idx2,res2 in enumerate(resList):
-            if idx1 == idx2:
-                interList[idx1][idx2] = True
+            if res1.id == res2.id:
+                pass
             
-            if res1.day == res2.day:
+            elif res1.day == res2.day:
                 if res1.start < res2.start and res1.start+res1.restime > res2.start:
                     interList[idx1][idx2] = True
                 elif res1.start < res2.start+res2.restime and res1.start+res1.restime > res2.start+res2.restime:
@@ -78,3 +78,4 @@ def reservationInterfeer(resList:list[DataStructure.Reservation]):
                     interList[idx1][idx2] = True
                 elif res2.start > res1.start and res2.start+res2.restime < res1.start+res1.restime:
                     interList[idx1][idx2] = True
+    return interList
