@@ -4,7 +4,7 @@ from DataStructure import *
 import DataStructure
 import numpy as np
 
-def read_file(filepath: str, debug: bool = False) -> tuple[list[DataStructure.Reservation], list[DataStructure.Zone], list[DataStructure.Vehicle]]:
+def read_file(filepath: str, debug: bool = False) -> tuple[list[DataStructure.Reservation], list[DataStructure.Zone], list[DataStructure.Vehicle], list[bool]]:
     with open(filepath) as csv_file:
         csv_reader = csv.reader(csv_file, delimiter=";")
         
