@@ -54,11 +54,15 @@ def read_file(filepath: str, debug: bool = False) -> tuple[list[DataStructure.Re
             pprint.pprint(list_reservations)
             pprint.pprint(list_zones)
             pprint.pprint(list_vehicles)
-        return list_reservations, list_zones, list_vehicles
+
+        #make reservation interference list
+        interList = reservationInterfeer(list_reservations)
+
+        return list_reservations, list_zones, list_vehicles, interList
     
 
 def reservationInterfeer(resList:list[DataStructure.Reservation]):
-    interList = [[False for x in range(len(resList))] for y in range(len(len(resList)))]
+    interList = [[False for x in range(len(resList))] for y in range(len(resList))]
 
     for res in resList:
         pass

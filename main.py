@@ -13,9 +13,8 @@ def main():
     lists = parser_1.read_file('input/100_5_14_25.csv')
 
     #make start solution
+    print(control.CheckAll(lists[0],lists[2],lists[3]))
     print(cost.CalculateCosts(lists[0],lists[1]))
-    print(control.CheckAll(lists[0],lists[2]))
-    
 
 if __name__ == "__main__":
     main()
