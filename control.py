@@ -24,12 +24,12 @@ def CheckAll(reservationList: List[DataStructure.Reservation], cars: List[DataSt
 
     return True
 
-def CheckCarSwitch(car1:DataStructure.Vehicle,car2:DataStructure.Vehicle)->bool:
+def CheckCarSwitch(car1: DataStructure.Vehicle, car2: DataStructure.Vehicle)->bool:
     if car1.zone == None or car2.zone == None:
         return False
     return True
 
-def CheckResSwitch(res1:DataStructure.Reservation,res2:DataStructure.Reservation,reservationList:list[DataStructure.Reservation],resInterferList:list[bool])->bool:
+def CheckResSwitch(res1: DataStructure.Reservation, res2: DataStructure.Reservation,reservationList: list[DataStructure.Reservation], resInterferList: list[bool])->bool:
     #reservations for a car can interfier with other reservations that where not in the swap
     #search in matrix for interferences on the car
     if res1.vehiecel == None or res2.vehiecel == None:
