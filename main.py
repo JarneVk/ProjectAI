@@ -31,6 +31,7 @@ def main():
     ls = LocalSearch(reservations, zones, vehicles, interferences)
 
     ls.initialise()
+    print("initial solution: ",ls.checkAll())
     ls.switchCarToNeighbours(ls.vehicles[0])
 
     # reservations, vehicles = init.initialise(reservations, zones, vehicles, interferences)

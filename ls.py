@@ -92,8 +92,8 @@ class LocalSearch():
                 assigned = True
             
             #also assign possible neigbours
-            elif reservation.vehiecel is None and zone.id in reservation.zone.neighbours:
-                reservation.vehiecel = car
+            elif reservation.vehicle is None and zone.id in reservation.zone.neighbours:
+                reservation.vehicle = car
                 car.zone = zone.id
                 assigned = True
                 
