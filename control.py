@@ -34,6 +34,12 @@ def CheckResSwitch(res1:DataStructure.Reservation,res2:DataStructure.Reservation
     for indx,inter in enumerate(resInterferList[res2.id]):
         if inter == True and res2.vehiecel == reservationList[indx].vehiecel:
             return False
+        
+    if res1.zone not in res1.vehiecel.zone.neighbours:
+            return False
+    if res2.zone not in res2.vehiecel.zone.neighbours:
+            return False
+
     return True
     
 
