@@ -13,8 +13,13 @@ def sortReservaties(reservaties: List[Reservation]):
     reservaties.sort(key=getPossibleAmountCars)
     return reservaties
 
+
+
 def initialise(reservaties: List[Reservation], zones: List[Zone], voertuigen: List[Vehicle]) -> Tuple[List[Reservation], List[Zone]]:
 
+    def sortNormal(reservatie: Reservation):
+        return reservatie.id
+    
     reservaties = sortReservaties(reservaties)
 
     used = []
@@ -25,5 +30,6 @@ def initialise(reservaties: List[Reservation], zones: List[Zone], voertuigen: Li
                 used.append(posVeh)
                 res.vehiecel = voertuigen[posVeh]
                 voertuigen[posVeh].zone = zones[res.zone]
+    reservaties.sort(key=sortNormal)
 
     return reservaties, voertuigen
