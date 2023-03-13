@@ -45,7 +45,7 @@ def read_file(filepath: str, debug: bool = False) -> tuple[list[DataStructure.Re
                 amount_vehicles = int(row[0].split(": ")[1])
                 continue
             
-            if i <= amount_requests + amount_zones + amount_vehicles + 1:
+            if i <= amount_requests + amount_zones + amount_vehicles + 2:
                 # reading vehicles
                 list_vehicles.append(Vehicle(int(row[0].strip("car"))))
             
