@@ -62,6 +62,24 @@ class LocalSearch():
 
         return True
     
+    def checkNew(self, reservations: List[Reservation]) -> bool:
+        for car in self.vehicles:
+            if car.zone == None:
+                print(f"auto {car.id} does not have a zone assigned")
+                return False
+            
+        for res in reservations:
+            # reservation is not filled in
+            if res.vehicle == None:
+                continue
+
+            # two reservations for the same car intervene
+            for indx, inter in enumerate(self.interferences[res.id]):
+                if inter == True and res.vehicle == self.reservations[indx].vehicle:
+                    print(f"overlapping reservations r1: {res.id} | r2: {self.reservations[indx].id}")
+                    return False
+        return True
+    
     # cost
     def calculateFullCosts(self) -> int:
 
