@@ -83,6 +83,7 @@ class LocalSearch():
                         res.vehicle = vehicle
                         res_per_veh[vehicle.id].append(res.id)
 
+        print(self.checkAll())
         # loop for every vehicle through the list of reservations and look if a reservation can be added with a neighbour
         for vehicle in self.vehicles:
             for res in self.reservations:
