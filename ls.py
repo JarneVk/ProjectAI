@@ -1,5 +1,6 @@
 from typing import *
 from DataStructure import *
+from copy import deepcopy
 
 
 class LocalSearch():
@@ -108,8 +109,8 @@ class LocalSearch():
                 reservation.vehicle = car
                 car.zone = zone
                 assigned = True
-            
-            #also assign possible neigbours
+
+            # also assign possible neigbours
             elif reservation.vehicle is None and zone.id in reservation.zone.neighbours:
                 reservation.vehicle = car
                 car.zone = zone.id
@@ -118,18 +119,23 @@ class LocalSearch():
         if not assigned:
             print("not possible to assign vehicle to zone")
 
-    def switchCarToNeighbours(self, car: Vehicle) -> List[Reservation]:
+    def switchCarToNeighbours(self, car: int) -> List[Reservation]:
 
         currentBestCost = self.calculateFullCosts()
-        reservationsBest = self.reservations
+        reservationsBest = deepcopy(self.reservations)
+        vehiclesBest = deepcopy(self.vehicles)
 
         for z in car.zone.neighbours:
             self.carToZone(car, self.zones[z])
             cost = self.calculateFullCosts()
+            # change is correct
             if cost < currentBestCost and self.checkAll():
                 currentBestCost = cost
-                reservationsBest = self.reservations
+                reservationsBest = deepcopy(self.reservations)
+                vehiclesBest = deepcopy(self.vehicles)
+            # change is not correct
             else:
-                self.reservations = reservationsBest
+                self.reservations = deepcopy(reservationsBest)
+                self.vehicles = deepcopy(vehiclesBest)
                 
         print(self.checkAll())

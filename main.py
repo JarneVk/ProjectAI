@@ -32,7 +32,10 @@ def main():
 
     ls.initialise()
     print("initial solution: ",ls.checkAll())
-    ls.switchCarToNeighbours(ls.vehicles[0])
+    for i in range(len(ls.vehicles)):
+        ls.switchCarToNeighbours(ls.vehicles[i])
+
+    print(ls.calculateFullCosts())
 
     # reservations, vehicles = init.initialise(reservations, zones, vehicles, interferences)
 
