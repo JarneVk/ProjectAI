@@ -208,8 +208,8 @@ class LocalSearch():
         new_reservationsBest = reservationsBest
         new_vehiclesBest = vehiclesBest
 
-        for z in car.zone.neighbours:
-            changedReservations: List[Reservation] = self.carToZone(car, self.zones[z])
+        for z in self.vehicles[car].zone.neighbours:
+            changedReservations: List[Reservation] = self.carToZone(self.vehicles[car], self.zones[z])
             cost = self.calculateFullCosts()
 
             # change is correct
