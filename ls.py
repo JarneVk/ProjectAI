@@ -29,9 +29,9 @@ class LocalSearch():
         start_2 = res2.start # 885
         end_2 = res2.start + res2.restime # 314
 
-        if start_1 < start_2 and start_2 <= end_1:
+        if start_1 <= start_2 and start_2 <= end_1:
             return True
-        elif start_1 < end_2 and end_2 <= end_1:
+        elif start_1 <= end_2 and end_2 <= end_1:
             return True
         return False
     
@@ -71,7 +71,7 @@ class LocalSearch():
         # loop for every vehicle through the list of reservations sorted by zone and look if you can add more than 1
         for vehicle in self.vehicles:
             for res in self.reservations:
-                if res.zone.id == vehicle.zone.id and res.vehicle is None:
+                if res.zone.id == vehicle.zone.id and res.vehicle is None and vehicle.id in res.possibleVehicles:
                     if not LocalSearch.doesListInterfere(res, [self.reservations[i] for i in res_per_veh[vehicle.id]]):
                         res.vehicle = vehicle
                         res_per_veh[vehicle.id].append(res.id)
@@ -79,7 +79,7 @@ class LocalSearch():
         # loop for every vehicle through the list of reservations and look if a reservation can be added with a neighbour
         for vehicle in self.vehicles:
             for res in self.reservations:
-                if res.zone.id in vehicle.zone.neighbours and res.vehicle is None:
+                if res.zone.id in vehicle.zone.neighbours and res.vehicle is None and vehicle.id in res.possibleVehicles:
                     if not LocalSearch.doesListInterfere(res, [self.reservations[i] for i in res_per_veh[vehicle.id]]):
                         res.vehicle = vehicle
                         res_per_veh[vehicle.id].append(res.id)
