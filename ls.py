@@ -46,7 +46,7 @@ class LocalSearch():
         for car in self.vehicles:
             # every car needs a zone
             if car.zone == None:
-                print(f"auto {car.id} does not have a zone assigned")
+                # print(f"auto {car.id} does not have a zone assigned")
                 return False
             
         for res in self.reservations:
@@ -58,7 +58,7 @@ class LocalSearch():
             # two reservations for the same car intervene
             for indx, inter in enumerate(self.interferences[res.id]):
                 if inter == True and res.vehicle == self.reservations[indx].vehicle:
-                    print(f"overlapping reservations r1: {res.id} | r2: {self.reservations[indx].id}")
+                    # print(f"overlapping reservations r1: {res.id} | r2: {self.reservations[indx].id}")
                     return False
 
         return True
@@ -123,7 +123,8 @@ class LocalSearch():
                 assigned = True
                 
         if not assigned:
-            print("not possible to assign vehicle to zone")
+            # print("not possible to assign vehicle to zone")
+            None
 
     def switchCarToNeighbours(self, car: int) -> List[Reservation]:
 

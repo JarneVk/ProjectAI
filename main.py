@@ -30,27 +30,21 @@ def main():
 
     ls = LocalSearch(reservations, zones, vehicles, interferences)
 
-    ls.initialise()
-    print("initial solution: ",ls.checkAll())
-    for i in range(len(ls.vehicles)):
-        ls.switchCarToNeighbours(ls.vehicles[i])
 
-    print(ls.calculateFullCosts())
+    init_time = time.perf_counter()
+
+    ls.initialise()
+
+    init_cost = ls.calculateFullCosts()
+
+    print("initial solution: ",ls.checkAll())
+    for _ in range(10):
+        for i in range(len(ls.vehicles)):
+            ls.switchCarToNeighbours(ls.vehicles[i])
+
+    print(init_cost, " => ", ls.calculateFullCosts())
 
     ls.writeOutput(os.path.join("output", "temp1.csv"))
-
-    # reservations, vehicles = init.initialise(reservations, zones, vehicles, interferences)
-
-    # output.writeOutput(os.path.join("output", "temp1.csv"), reservations, zones, vehicles, cost.CalculateCosts(reservations, zones))
-
-    # # reservations = localSearch.switchCarToNeighbours(car = vehicles[0], reservations = reservations, zones = zones, costFunction = cost.CalculateCosts)
-
-    # output.writeOutput(os.path.join("output", filename[-1]), reservations, zones, vehicles, cost.CalculateCosts(reservations, zones))
-
-    # #make start solution
-    init_time = time.perf_counter()
-    # print(control.CheckAll(reservations, vehicles, interferences))
-    # print(cost.CalculateCosts(reservations, zones))
 
     end_time = time.perf_counter()
 
