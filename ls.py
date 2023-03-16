@@ -96,7 +96,7 @@ class LocalSearch():
                 total_cost += 0
 
             # res assigned in car in neighbouring zone 
-            elif res.vehicle.zone in res.zone.neighbours:
+            elif res.vehicle.zone.id in res.zone.neighbours:
                 total_cost += res.p2
 
         return total_cost
