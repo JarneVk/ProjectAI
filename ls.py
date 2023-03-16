@@ -1,5 +1,6 @@
 from typing import *
 from DataStructure import *
+from copy import deepcopy
 
 
 class LocalSearch():
@@ -45,7 +46,7 @@ class LocalSearch():
         for car in self.vehicles:
             # every car needs a zone
             if car.zone == None:
-                print(f"auto {car.id} does not have a zone assigned")
+                # print(f"auto {car.id} does not have a zone assigned")
                 return False
             
         for res in self.reservations:
@@ -57,7 +58,7 @@ class LocalSearch():
             # two reservations for the same car intervene
             for indx, inter in enumerate(self.interferences[res.id]):
                 if inter == True and res.vehicle == self.reservations[indx].vehicle:
-                    print(f"overlapping reservations r1: {res.id} | r2: {self.reservations[indx].id}")
+                    # print(f"overlapping reservations r1: {res.id} | r2: {self.reservations[indx].id}")
                     return False
 
         return True
@@ -95,41 +96,73 @@ class LocalSearch():
                 total_cost += 0
 
             # res assigned in car in neighbouring zone 
-            elif res.vehicle.zone in res.zone.neighbours:
+            elif res.vehicle.zone.id in res.zone.neighbours:
                 total_cost += res.p2
 
         return total_cost
     
     # localSearch
     def carToZone(self, car: Vehicle, zone: Zone) -> bool:
+
+        for res in self.reservations:
+            if res.vehicle is not None:
+                if res.vehicle.id == car.id:
+                   res.vehicle = None
+
         assigned = False
         for reservation in self.reservations:
             if (reservation.zone.id == zone.id) and (reservation.vehicle is None):
                 reservation.vehicle = car
                 car.zone = zone
                 assigned = True
-            
-            #also assign possible neigbours
+
+            # also assign possible neigbours
             elif reservation.vehicle is None and zone.id in reservation.zone.neighbours:
                 reservation.vehicle = car
-                car.zone = zone.id
+                car.zone = zone
                 assigned = True
                 
         if not assigned:
-            print("not possible to assign vehicle to zone")
+            # print("not possible to assign vehicle to zone")
+            None
 
-    def switchCarToNeighbours(self, car: Vehicle) -> List[Reservation]:
+    def switchCarToNeighbours(self, car: int) -> List[Reservation]:
 
         currentBestCost = self.calculateFullCosts()
-        reservationsBest = self.reservations
+        reservationsBest = deepcopy(self.reservations)
+        vehiclesBest = deepcopy(self.vehicles)
 
         for z in car.zone.neighbours:
             self.carToZone(car, self.zones[z])
             cost = self.calculateFullCosts()
+            # change is correct
             if cost < currentBestCost and self.checkAll():
                 currentBestCost = cost
-                reservationsBest = self.reservations
+                reservationsBest = deepcopy(self.reservations)
+                vehiclesBest = deepcopy(self.vehicles)
+            # change is not correct
             else:
-                self.reservations = reservationsBest
+                self.reservations = deepcopy(reservationsBest)
+                self.vehicles = deepcopy(vehiclesBest)
                 
         print(self.checkAll())
+
+    def writeOutput(self, filename: str):
+        with open(filename, 'w') as file:
+            file.write(f"{self.calculateFullCosts()}\n")
+            file.write(f"+Vehicle assignments\n")
+
+            for vehicle in self.vehicles:
+                file.write(f"car{vehicle.id};z{vehicle.zone.id}\n")
+
+            file.write("+Assigned requests\n")
+            for reservation in self.reservations:
+                if reservation.vehicle is None:
+                    continue
+                else:
+                    file.write(f"req{reservation.id};car{reservation.vehicle.id}\n")
+
+            file.write("+Unassigned requests\n")
+            for reservation in self.reservations:
+                if reservation.vehicle is None:
+                    file.write(f"req{reservation.id}\n")

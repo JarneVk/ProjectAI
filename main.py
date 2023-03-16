@@ -34,8 +34,17 @@ def main():
     init_time = time.perf_counter()
 
     ls.initialise()
+
+    init_cost = ls.calculateFullCosts()
+
     print("initial solution: ",ls.checkAll())
-    ls.switchCarToNeighbours(ls.vehicles[0])
+    for _ in range(10):
+        for i in range(len(ls.vehicles)):
+            ls.switchCarToNeighbours(ls.vehicles[i])
+
+    print(init_cost, " => ", ls.calculateFullCosts())
+
+    ls.writeOutput(os.path.join("output", "temp1.csv"))
 
     end_time = time.perf_counter()
 
