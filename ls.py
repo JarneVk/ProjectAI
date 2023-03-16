@@ -24,6 +24,9 @@ class LocalSearch():
     # returns True if both reservations interfere with each other
     # returns False if not
 
+        if res1.day != res2.day:
+            return False
+
         start_1 = res1.start # 1072
         end_1 = res1.start + res1.restime # 127
         start_2 = res2.start # 885
@@ -43,6 +46,10 @@ class LocalSearch():
                 return True
         
         return False
+    
+    def vehiclePossible(vehicle: Vehicle, res: Reservation) -> bool:
+        return res.zone.id == vehicle.zone.id and res.vehicle is None and vehicle.id in res.possibleVehicles
+
 
     def __init__(self, reservations: List[Reservation], zones: List[Zone], vehicles: List[Vehicle], interferences: List[List[bool]], debug: bool = False) -> None:
         self.reservations: List[Reservation] = reservations
@@ -71,7 +78,7 @@ class LocalSearch():
         # loop for every vehicle through the list of reservations sorted by zone and look if you can add more than 1
         for vehicle in self.vehicles:
             for res in self.reservations:
-                if res.zone.id == vehicle.zone.id and res.vehicle is None and vehicle.id in res.possibleVehicles:
+                if LocalSearch.vehiclePossible(vehicle, res):
                     if not LocalSearch.doesListInterfere(res, [self.reservations[i] for i in res_per_veh[vehicle.id]]):
                         res.vehicle = vehicle
                         res_per_veh[vehicle.id].append(res.id)
@@ -79,7 +86,7 @@ class LocalSearch():
         # loop for every vehicle through the list of reservations and look if a reservation can be added with a neighbour
         for vehicle in self.vehicles:
             for res in self.reservations:
-                if res.zone.id in vehicle.zone.neighbours and res.vehicle is None and vehicle.id in res.possibleVehicles:
+                if LocalSearch.vehiclePossible(vehicle, res):
                     if not LocalSearch.doesListInterfere(res, [self.reservations[i] for i in res_per_veh[vehicle.id]]):
                         res.vehicle = vehicle
                         res_per_veh[vehicle.id].append(res.id)
