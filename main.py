@@ -37,9 +37,6 @@ def main():
     init_cost = ls.calculateFullCosts()
 
     print("initial solution: ",ls.checkAll())
-    # for _ in range(10):
-    #     for i in range(len(ls.vehicles)):
-    #         ls.switchCarToNeighbours(ls.vehicles[i])
 
     print(init_cost, " => ", ls.calculateFullCosts())
 
