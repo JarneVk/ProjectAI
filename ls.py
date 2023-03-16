@@ -102,22 +102,27 @@ class LocalSearch():
         return total_cost
     
     # localSearch
-    def carToZone(self, car: Vehicle, zone: Zone) -> bool:
+    def carToZone(self, car: Vehicle, zone: Zone) -> List[Reservation]:
+        changed_reservations: List[Reservation] = []
         assigned = False
         for reservation in self.reservations:
             if (reservation.zone.id == zone.id) and (reservation.vehicle is None):
                 reservation.vehicle = car
                 car.zone = zone
                 assigned = True
+                changed_reservations.append(reservation)
 
+        for reservation in self.reservations:
             # also assign possible neigbours
-            elif reservation.vehicle is None and zone.id in reservation.zone.neighbours:
+            if reservation.vehicle is None and zone.id in reservation.zone.neighbours:
                 reservation.vehicle = car
-                car.zone = zone.id
+                car.zone = zone
                 assigned = True
+                changed_reservations.append(reservation)
                 
         if not assigned:
             print("not possible to assign vehicle to zone")
+        return changed_reservations
 
     def switchCarToNeighbours(self, car: int) -> List[Reservation]:
 
@@ -126,7 +131,7 @@ class LocalSearch():
         vehiclesBest = deepcopy(self.vehicles)
 
         for z in car.zone.neighbours:
-            self.carToZone(car, self.zones[z])
+            changedReservations: List[Reservation] = self.carToZone(car, self.zones[z])
             cost = self.calculateFullCosts()
             # change is correct
             if cost < currentBestCost and self.checkAll():
