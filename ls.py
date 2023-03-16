@@ -19,6 +19,31 @@ class LocalSearch():
         # sorteer geinitialiseerde reservaties
         self.reservations.sort(key=LocalSearch.sortNormal)
 
+    def doesInterfere(res1: Reservation, res2: Reservation) -> bool:
+    # interference if start AND/OR end of second is in duration of first reservation
+    # returns True if both reservations interfere with each other
+    # returns False if not
+
+        start_1 = res1.start # 1072
+        end_1 = res1.start + res1.restime # 127
+        start_2 = res2.start # 885
+        end_2 = res2.start + res2.restime # 314
+
+        if start_1 < start_2 and start_2 <= end_1:
+            return True
+        elif start_1 < end_2 and end_2 <= end_1:
+            return True
+        return False
+    
+    def doesListInterfere(res1: Reservation, resList: List[Reservation]) -> bool:
+    # check interference with list of Reservations
+
+        for res2 in resList:
+            if LocalSearch.doesInterfere(res1, res2):
+                return True
+        
+        return False
+
     def __init__(self, reservations: List[Reservation], zones: List[Zone], vehicles: List[Vehicle], interferences: List[List[bool]], debug: bool = False) -> None:
         self.reservations: List[Reservation] = reservations
         self.zones: List[Zone] = zones
@@ -31,6 +56,7 @@ class LocalSearch():
     def initialise(self):
         self.sortReservationsVehicles()
         used = []
+        res_per_veh = [[] for _ in range(len(self.vehicles))]
 
         for res in self.reservations:
             for posVeh in res.possibleVehicles:
@@ -38,8 +64,26 @@ class LocalSearch():
                     used.append(posVeh)
                     res.vehicle = self.vehicles[posVeh]
                     self.vehicles[posVeh].zone = res.zone
+                    res_per_veh[posVeh].append(res.id)
 
         self.sortReservationsID()
+
+        # loop for every vehicle through the list of reservations sorted by zone and look if you can add more than 1
+        for vehicle in self.vehicles:
+            for res in self.reservations:
+                if res.zone.id == vehicle.zone.id and res.vehicle is None:
+                    if not LocalSearch.doesListInterfere(res, [self.reservations[i] for i in res_per_veh[vehicle.id]]):
+                        res.vehicle = vehicle
+                        res_per_veh[vehicle.id].append(res.id)
+
+        # loop for every vehicle through the list of reservations and look if a reservation can be added with a neighbour
+        for vehicle in self.vehicles:
+            for res in self.reservations:
+                if res.zone.id in vehicle.zone.neighbours and res.vehicle is None:
+                    if not LocalSearch.doesListInterfere(res, [self.reservations[i] for i in res_per_veh[vehicle.id]]):
+                        res.vehicle = vehicle
+                        res_per_veh[vehicle.id].append(res.id)
+
 
     # control
     def checkAll(self) -> bool:
@@ -47,7 +91,7 @@ class LocalSearch():
         for car in self.vehicles:
             # every car needs a zone
             if car.zone == None:
-                # print(f"auto {car.id} does not have a zone assigned")
+                print(f"auto {car.id} does not have a zone assigned")
                 return False
             
         for res in self.reservations:
@@ -59,7 +103,7 @@ class LocalSearch():
             # two reservations for the same car intervene
             for indx, inter in enumerate(self.interferences[res.id]):
                 if inter == True and res.vehicle == self.reservations[indx].vehicle:
-                    # print(f"overlapping reservations r1: {res.id} | r2: {self.reservations[indx].id}")
+                    print(f"overlapping reservations r1: {res.id} | r2: {self.reservations[indx].id}")
                     return False
 
         return True
