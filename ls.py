@@ -103,6 +103,7 @@ class LocalSearch():
     
     # localSearch
     def carToZone(self, car: Vehicle, zone: Zone,debug=False) -> bool:
+        changed_reservations: List[Reservation] = []
         if debug:
             print(f"switch to zone {zone}________________________")
         #delete reservations that will break
@@ -126,6 +127,7 @@ class LocalSearch():
                 reservation.vehicle = car
                 car.zone = zone
                 assigned = True
+<<<<<<< HEAD
                 if debug:
                     print(f"assigned new same zone: res{reservation.id}")
 
@@ -139,8 +141,21 @@ class LocalSearch():
                     print(f"assigned new neigbour: res{reservation.id}")
 
         self.printReservations()
+=======
+                changed_reservations.append(reservation)
+
+        for reservation in self.reservations:
+            # also assign possible neigbours
+            if reservation.vehicle is None and zone.id in reservation.zone.neighbours:
+                reservation.vehicle = car
+                car.zone = zone
+                assigned = True
+                changed_reservations.append(reservation)
+                
+>>>>>>> 60d2d1339a0b3450b491f359eb2f80bd8edf99a5
         if not assigned:
             print("not possible to assign vehicle to zone")
+        return changed_reservations
 
     def switchCarToNeighbours(self, car: int) -> List[Reservation]:
 
@@ -150,7 +165,7 @@ class LocalSearch():
         new_reservationsBest = reservationsBest
         new_vehiclesBest = vehiclesBest
         for z in car.zone.neighbours:
-            self.carToZone(car, self.zones[z])
+            changedReservations: List[Reservation] = self.carToZone(car, self.zones[z])
             cost = self.calculateFullCosts()
             # change is correct
             if cost < currentBestCost and self.checkAll():
