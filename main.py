@@ -38,6 +38,10 @@ def main():
 
     print("initial solution: ",ls.checkAll())
 
+    for _ in range(10):
+        for i in range(len(ls.vehicles)):
+            ls.switchCarToNeighbours(i)
+
     print(init_cost, " => ", ls.calculateFullCosts())
 
     ls.writeOutput(os.path.join("output", "temp1.csv"))
