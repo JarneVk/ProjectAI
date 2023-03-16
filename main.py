@@ -37,6 +37,8 @@ def main():
 
     print(ls.calculateFullCosts())
 
+    ls.writeOutput(os.path.join("output", "temp1.csv"))
+
     # reservations, vehicles = init.initialise(reservations, zones, vehicles, interferences)
 
     # output.writeOutput(os.path.join("output", "temp1.csv"), reservations, zones, vehicles, cost.CalculateCosts(reservations, zones))
@@ -46,14 +48,14 @@ def main():
     # output.writeOutput(os.path.join("output", filename[-1]), reservations, zones, vehicles, cost.CalculateCosts(reservations, zones))
 
     # #make start solution
-    # init_time = time.perf_counter()
+    init_time = time.perf_counter()
     # print(control.CheckAll(reservations, vehicles, interferences))
     # print(cost.CalculateCosts(reservations, zones))
 
-    # end_time = time.perf_counter()
+    end_time = time.perf_counter()
 
-    # print(f"init time: {init_time-start_time}")
-    # print(f"end  time: {end_time-start_time}")
+    print(f"init time: {init_time-start_time}")
+    print(f"end  time: {end_time-start_time}")
 
 if __name__ == "__main__":
     main()

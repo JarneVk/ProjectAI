@@ -103,6 +103,12 @@ class LocalSearch():
     
     # localSearch
     def carToZone(self, car: Vehicle, zone: Zone) -> bool:
+
+        for res in self.reservations:
+            if res.vehicle is not None:
+                if res.vehicle.id == car.id:
+                   res.vehicle = None
+
         assigned = False
         for reservation in self.reservations:
             if (reservation.zone.id == zone.id) and (reservation.vehicle is None):
@@ -113,7 +119,7 @@ class LocalSearch():
             # also assign possible neigbours
             elif reservation.vehicle is None and zone.id in reservation.zone.neighbours:
                 reservation.vehicle = car
-                car.zone = zone.id
+                car.zone = zone
                 assigned = True
                 
         if not assigned:
@@ -139,3 +145,23 @@ class LocalSearch():
                 self.vehicles = deepcopy(vehiclesBest)
                 
         print(self.checkAll())
+
+    def writeOutput(self, filename: str):
+        with open(filename, 'w') as file:
+            file.write(f"{self.calculateFullCosts()}\n")
+            file.write(f"+Vehicle assignments\n")
+
+            for vehicle in self.vehicles:
+                file.write(f"car{vehicle.id};z{vehicle.zone.id}\n")
+
+            file.write("+Assigned requests\n")
+            for reservation in self.reservations:
+                if reservation.vehicle is None:
+                    continue
+                else:
+                    file.write(f"req{reservation.id};car{reservation.vehicle.id}\n")
+
+            file.write("+Unassigned requests\n")
+            for reservation in self.reservations:
+                if reservation.vehicle is None:
+                    file.write(f"req{reservation.id}\n")
