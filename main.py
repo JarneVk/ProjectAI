@@ -30,27 +30,17 @@ def main():
 
     ls = LocalSearch(reservations, zones, vehicles, interferences)
 
+
+    init_time = time.perf_counter()
+
     ls.initialise()
     print("initial solution: ",ls.checkAll())
     ls.switchCarToNeighbours(ls.vehicles[0])
 
-    # reservations, vehicles = init.initialise(reservations, zones, vehicles, interferences)
+    end_time = time.perf_counter()
 
-    # output.writeOutput(os.path.join("output", "temp1.csv"), reservations, zones, vehicles, cost.CalculateCosts(reservations, zones))
-
-    # # reservations = localSearch.switchCarToNeighbours(car = vehicles[0], reservations = reservations, zones = zones, costFunction = cost.CalculateCosts)
-
-    # output.writeOutput(os.path.join("output", filename[-1]), reservations, zones, vehicles, cost.CalculateCosts(reservations, zones))
-
-    # #make start solution
-    # init_time = time.perf_counter()
-    # print(control.CheckAll(reservations, vehicles, interferences))
-    # print(cost.CalculateCosts(reservations, zones))
-
-    # end_time = time.perf_counter()
-
-    # print(f"init time: {init_time-start_time}")
-    # print(f"end  time: {end_time-start_time}")
+    print(f"init time: {init_time-start_time}")
+    print(f"end  time: {end_time-start_time}")
 
 if __name__ == "__main__":
     main()
