@@ -27,10 +27,10 @@ class LocalSearch():
         if res1.day != res2.day:
             return False
 
-        start_1 = res1.start # 1072
-        end_1 = res1.start + res1.restime # 127
-        start_2 = res2.start # 885
-        end_2 = res2.start + res2.restime # 314
+        start_1 = res1.start
+        end_1 = res1.start + res1.restime
+        start_2 = res2.start
+        end_2 = res2.start + res2.restime
 
         if start_1 <= start_2 and start_2 <= end_1:
             return True
