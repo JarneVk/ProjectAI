@@ -28,8 +28,15 @@ def main():
 
     reservations, zones, vehicles, interferences = parser_1.read_file(os.path.join("input", filename[-1]))
 
-    ls = LocalSearch(reservations, zones, vehicles, interferences)
+    ls = LocalSearch(reservations, zones, vehicles, interferences, debug = False)
 
+    ls.initialise()
+    print("initial solution: ",ls.checkAll())
+    for x in range(10):
+        for i in range(len(ls.vehicles)):
+            ls.switchCarToNeighbours(ls.vehicles[i])
+
+    print(ls.calculateFullCosts())
 
     init_time = time.perf_counter()
 
