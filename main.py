@@ -1,14 +1,8 @@
 import parser_1
-import DataStructure
-import cost
-import control
-import init
-import output
 import time
 import sys
 import os
 from pprint import pprint
-import localSearch
 
 from ls import LocalSearch
 
