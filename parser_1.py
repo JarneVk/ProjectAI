@@ -89,13 +89,4 @@ def reservationInterfeer(resList:list[DataStructure.Reservation]):
             
             elif res1.day == res2.day:
                 interList[idx1][idx2] = doesInterfere(res1, res2)
-                # print(res1.id, interList[idx1][idx2], res2.id)
-                # if res1.start < res2.start and res1.start+res1.restime > res2.start:
-                #     interList[idx1][idx2] = True
-                # elif res1.start < res2.start+res2.restime and res1.start+res1.restime > res2.start+res2.restime:
-                #     interList[idx1][idx2] = True
-                # elif res1.start > res2.start and res1.start+res1.restime < res2.start+res2.restime:
-                #     interList[idx1][idx2] = True
-                # elif res2.start > res1.start and res2.start+res2.restime < res1.start+res1.restime:
-                #     interList[idx1][idx2] = True
     return interList
