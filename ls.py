@@ -156,6 +156,38 @@ class LocalSearch():
 
         return total_cost
     
+    def calculatePartCost(reservations: List[Reservation]) -> int:
+
+        cost_diff = 0
+        for res in reservations:
+            # res not assigned
+            if res.vehicle == None:
+                cost_diff += res.p1
+
+            # res assigned car in own zone
+            elif res.vehicle.zone == res.zone:
+                cost_diff += 0
+
+            # res assigned in car in neighbouring zone 
+            elif res.vehicle.zone.id in res.zone.neighbours:
+                cost_diff += res.p2
+        
+        return cost_diff
+    
+    def calculateCost(reservation: Reservation) -> int:
+        # res not assigned
+        if reservation.vehicle == None:
+            return reservation.p1
+
+        # res assigned car in own zone
+        elif reservation.vehicle.zone == reservation.zone:
+            return 0
+
+        # res assigned in car in neighbouring zone 
+        elif reservation.vehicle.zone.id in reservation.zone.neighbours:
+            return reservation.p2
+    
+    
     # localSearch
     def carToZone(self, car: Vehicle, zone: Zone) -> List[Reservation]:
         changed_reservations: List[Reservation] = []

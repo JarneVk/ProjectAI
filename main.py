@@ -1,14 +1,8 @@
 import parser_1
-import DataStructure
-import cost
-import control
-import init
-import output
 import time
 import sys
 import os
-import pprint
-import localSearch
+from pprint import pprint
 
 from ls import LocalSearch
 
@@ -38,13 +32,14 @@ def main():
 
     print("initial solution: ",ls.checkAll())
 
-    for _ in range(2):
+    for _ in range(1):
         for i in range(len(ls.vehicles)):
             ls.switchCarToNeighbours(i)
 
+    print(ls.checkAll())
     print(init_cost, " => ", ls.calculateFullCosts())
 
-    ls.writeOutput(os.path.join("output", "temp1.csv"))
+    ls.writeOutput(os.path.join("output", filename[-1]))
 
     end_time = time.perf_counter()
 
