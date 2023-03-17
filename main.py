@@ -38,7 +38,7 @@ def main():
 
     print("initial solution: ",ls.checkAll())
 
-    for _ in range(10):
+    for _ in range(2):
         for i in range(len(ls.vehicles)):
             ls.switchCarToNeighbours(i)
 
