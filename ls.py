@@ -258,6 +258,56 @@ class LocalSearch():
         self.reservations = new_reservationsBest
         self.vehicles = new_vehiclesBest
 
+    def carZoneSwitch(self, car1: Vehicle, car2: Vehicle) -> Tuple[List[Reservation], int]:
+
+        if car1.zone is None or car2.zone is None:
+            return [], 0
+        
+        if car1.id not in car2.zone.neighbours:
+            return [], 0
+        
+        if car2.id not in car1.zone.neighbours:
+            return [], 0
+
+        zone1 = car1.zone
+        zone2 = car2.zone
+
+        changed_res: List[Reservation] = []
+        changed_cost: int = 0
+
+        # clear all reservations from both vehicles
+        for res in self.reservations:
+            if res.zone in [car1.zone, car2.zone]:
+                changed_cost += LocalSearch.calculateCost(res)
+                res.vehicle = None
+                changed_res.append(res)
+
+        # change zones
+        car1.zone = zone2
+        car2.zone = zone1
+
+        res_car1: List[Reservation] = []
+        # assign all possible reservations for car1
+        for res in self.reservations:
+            if res.zone == zone2:
+                if LocalSearch.vehiclePossible(car1, res):
+                    if not LocalSearch.doesListInterfere(res, res_car1):
+                        res.vehicle = car1
+                        changed_res.append(res)
+        
+        res_car2: List[Reservation] = []
+        # assign all possible reservations for car2
+        for res in self.reservations:
+            if res.zone == zone1:
+                if LocalSearch.vehiclePossible(car2, res):
+                    if not LocalSearch.doesListInterfere(res, res_car2):
+                        res.vehicle = car2
+                        changed_res.append(res)
+
+        return changed_res, changed_cost
+
+    
+    # output
     def writeOutput(self, filename: str):
         with open(filename, 'w') as file:
             file.write(f"{self.calculateFullCosts()}\n")
