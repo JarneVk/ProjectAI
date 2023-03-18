@@ -43,7 +43,7 @@ def main():
 
         reservations, zones, vehicles, interferences = parser_1.read_file(args.file)
 
-        ls = LocalSearch(reservations, zones, vehicles, interferences, debug = False)
+        ls = LocalSearch(reservations, zones, vehicles, interferences, debug = args.verbose)
 
         init_time = time.perf_counter()
 
