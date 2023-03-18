@@ -250,6 +250,9 @@ class LocalSearch():
 
     def switchCarToNeighbours(self, car: int) -> List[Reservation]:
 
+        self.lastBestReservations = deepcopy(self.reservations)
+        self.lastBestVehicles = deepcopy(self.vehicles)
+
         currentBestCost = self.calculateFullCosts()
         reservationsBest = deepcopy(self.reservations)
         vehiclesBest = deepcopy(self.vehicles)
@@ -265,7 +268,9 @@ class LocalSearch():
                 currentBestCost = cost
                 new_reservationsBest = deepcopy(self.reservations)
                 new_vehiclesBest = deepcopy(self.vehicles)
-                print("found better cost")
+                self.lastBestReservations = deepcopy(self.reservations)
+                self.lastBestVehicles = deepcopy(self.vehicles)
+                # print("found better cost")
             # change is not correct
             else:
                 self.reservations = deepcopy(reservationsBest)
@@ -279,18 +284,18 @@ class LocalSearch():
             file.write(f"{self.calculateFullCosts()}\n")
             file.write(f"+Vehicle assignments\n")
 
-            for vehicle in self.vehicles:
+            for vehicle in self.lastBestVehicles:
                 file.write(f"car{vehicle.id};z{vehicle.zone.id}\n")
 
             file.write("+Assigned requests\n")
-            for reservation in self.reservations:
+            for reservation in self.lastBestReservations:
                 if reservation.vehicle is None:
                     continue
                 else:
                     file.write(f"req{reservation.id};car{reservation.vehicle.id}\n")
 
             file.write("+Unassigned requests\n")
-            for reservation in self.reservations:
+            for reservation in self.lastBestReservations:
                 if reservation.vehicle is None:
                     file.write(f"req{reservation.id}\n")
 
