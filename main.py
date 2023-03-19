@@ -58,9 +58,16 @@ def main():
         print("initial solution: ",ls.checkAll())
 
         amount_v = len(ls.vehicles)
+
+        i = 0
+
         while(True):
-            #select a random vehicle
+            i += 1
+            # select a random vehicle
             ls.switchCarToNeighbours(int(random.random()*amount_v))
+            # if i % 1000000:
+            #     ls.carZoneSwitch(ls.vehicles[int(random.random()*amount_v%(len(vehicles)))], ls.vehicles[int(random.random()*amount_v%(len(vehicles)))])
+            #     print(ls.calculateFullCosts())
 
     except Exception as ex:
         print(f"exception {ex}")
@@ -68,7 +75,7 @@ def main():
     finally:
         end_time = time.perf_counter()
 
-        print("last solution is :" + str(ls.checkNew(ls.lastBestReservations)))
+        print("last solution is: " + str(ls.checkNew(ls.lastBestReservations)))
         print(init_cost, " => ", ls.calculateFullCosts())
 
         ls.writeOutput(os.path.join("output", os.path.split(args.file)[-1]))

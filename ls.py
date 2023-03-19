@@ -283,12 +283,6 @@ class LocalSearch():
 
         if car1.zone is None or car2.zone is None:
             return [], 0
-        
-        if car1.id not in car2.zone.neighbours:
-            return [], 0
-        
-        if car2.id not in car1.zone.neighbours:
-            return [], 0
 
         zone1 = car1.zone
         zone2 = car2.zone
@@ -314,6 +308,7 @@ class LocalSearch():
                 if LocalSearch.vehiclePossible(car1, res):
                     if not LocalSearch.doesListInterfere(res, res_car1):
                         res.vehicle = car1
+                        res_car1.append(res)
                         changed_res.append(res)
         
         res_car2: List[Reservation] = []
@@ -323,6 +318,25 @@ class LocalSearch():
                 if LocalSearch.vehiclePossible(car2, res):
                     if not LocalSearch.doesListInterfere(res, res_car2):
                         res.vehicle = car2
+                        res_car2.append(res)
+                        changed_res.append(res)
+
+        # assign all possible neighbours to car1
+        for res in self.reservations:
+            if res.zone in car1.zone.neighbours:
+                if LocalSearch.vehiclePossible(car1, res):
+                    if not LocalSearch.doesListInterfere(res, res_car1):
+                        res.vehicle = car1
+                        res_car1.append(res)
+                        changed_res.append(res)
+
+        # assign all possible neighbours to car2
+        for res in self.reservations:
+            if res.zone in car2.zone.neighbours:
+                if LocalSearch.vehiclePossible(car2, res):
+                    if not LocalSearch.doesListInterfere(res, res_car2):
+                        res.vehicle = car2
+                        res_car2.append(res)
                         changed_res.append(res)
 
         return changed_res, changed_cost
