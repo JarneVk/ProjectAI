@@ -3,9 +3,21 @@ import time
 import sys
 import os
 from pprint import pprint
+import argparse
+import threading
+import signal
+import random
 
 from ls import LocalSearch
 
+def thread_function(time_out):
+    time.sleep(time_out)
+    print("sending signal SIGINT now")
+    signal.raise_signal(signal.SIGBREAK)
+
+def signal_catcher(signum, stack_frame):
+    print("catched signal")
+    raise Exception("TIMEOUT")
 
 def main():
     #############################################################################
@@ -13,38 +25,56 @@ def main():
     #                           initialise
     #
     #############################################################################
-    start_time = time.perf_counter()
 
-    if len(sys.argv) > 1:
-        filename = os.path.split(sys.argv[-1])
-    else:
-        filename = ["input", "toy1.csv"]
+    parser = argparse.ArgumentParser(prog='LocalSearch', description='LocalSearch algorithm')
 
-    reservations, zones, vehicles, interferences = parser_1.read_file(os.path.join("input", filename[-1]))
+    parser.add_argument('-v', '--verbose', action='store_true')
+    parser.add_argument('-f', '--file', help='the filepath relative to the main.py file', default=os.path.join('input', 'toy1.csv'))
+    parser.add_argument('-t', '--time', help='the amount of time (seconds) the algorithm may run', type=int, default=1)
+    parser.add_argument('-s', '--seed',help='give a seed for the random number generator', type=int, default=69)
 
-    ls = LocalSearch(reservations, zones, vehicles, interferences, debug = False)
+    args = parser.parse_args()
 
-    init_time = time.perf_counter()
+    signal.signal(signal.SIGBREAK, signal_catcher)
 
-    ls.initialise()
+    x = threading.Thread(target=thread_function, args=(args.time, ))
+    x.start()
 
-    init_cost = ls.calculateFullCosts()
+    random.seed(10)
 
-    print("initial solution: ",ls.checkAll())
+    try:
+        start_time = time.perf_counter()
 
-    for _ in range(1):
-        for i in range(len(ls.vehicles)):
-            ls.switchCarToNeighbours(i)
+        reservations, zones, vehicles, interferences = parser_1.read_file(args.file)
 
-    print(ls.checkAll())
-    print(init_cost, " => ", ls.calculateFullCosts())
+        ls = LocalSearch(reservations, zones, vehicles, interferences, debug = args.verbose)
 
-    ls.writeOutput(os.path.join("output", filename[-1]))
+        init_time = time.perf_counter()
 
-    end_time = time.perf_counter()
+        ls.initialise()
 
-    print(f"init time: {init_time-start_time}")
-    print(f"end  time: {end_time-start_time}")
+        init_cost = ls.calculateFullCosts()
+
+        print("initial solution: ",ls.checkAll())
+
+        amount_v = len(ls.vehicles)
+        while(True):
+            #select a random vehicle
+            ls.switchCarToNeighbours(int(random.random()*amount_v))
+
+    except Exception as ex:
+        print(f"exception {ex}")
+
+    finally:
+        end_time = time.perf_counter()
+
+        print("last solution is :" + str(ls.checkNew(ls.lastBestReservations)))
+        print(init_cost, " => ", ls.calculateFullCosts())
+
+        ls.writeOutput(os.path.join("output", os.path.split(args.file)[-1]))
+
+        print("init time: {time:.4f}".format(time=(init_time-start_time)))
+        print("end  time: {time:.4f}".format(time=(end_time-start_time)))
 
 if __name__ == "__main__":
     main()
