@@ -31,7 +31,7 @@ def main():
     parser.add_argument('-v', '--verbose', action='store_true')
     parser.add_argument('-f', '--file', help='the filepath relative to the main.py file', default=os.path.join('input', 'toy1.csv'))
     parser.add_argument('-t', '--time', help='the amount of time (seconds) the algorithm may run', type=int, default=1)
-    parser.add_argument('-s', '--seed',help='give a seed for the random number generator',type=int,default=69)
+    parser.add_argument('-s', '--seed',help='give a seed for the random number generator', type=int, default=69)
 
     args = parser.parse_args()
 
