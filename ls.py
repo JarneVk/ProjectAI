@@ -196,11 +196,15 @@ class LocalSearch():
 
         if self.debug:
             print(f"switch {car.id} to zone {zone.id}________________________")
+        
         # delete reservations that will break
+        self.res_to_veh[car.id] = []
+
         for res in self.reservations:
             if res.vehicle is not None:
                 if res.vehicle.id == car.id:
                    res.vehicle = None
+
 
         assigned = False
         for reservation in self.reservations:
@@ -211,6 +215,7 @@ class LocalSearch():
                     car.zone = zone
                     assigned = True
                     changed_reservations.append(reservation)
+                    self.res_to_veh[car.id].append(reservation)
                 
 
         #check for cars that can get a better cost
@@ -222,6 +227,7 @@ class LocalSearch():
                         car.zone = zone
                         assigned = True
                         changed_reservations.append(reservation)
+                        self.res_to_veh[car.id].append(reservation)
 
 
         for reservation in self.reservations:
@@ -232,7 +238,9 @@ class LocalSearch():
                     car.zone = zone
                     assigned = True
                     changed_reservations.append(reservation)
+                    self.res_to_veh[car.id].append(reservation)
     
+
         if self.debug:
             self.printReservations()
         if not assigned and self.debug:
@@ -286,6 +294,9 @@ class LocalSearch():
         changed_res: List[Reservation] = []
         changed_cost: int = 0
 
+        self.res_to_veh[car1.id] = []
+        self.res_to_veh[car2.id] = []
+
         # clear all reservations from both vehicles
         for res in self.reservations:
             if res.zone in [car1.zone, car2.zone]:
@@ -306,6 +317,7 @@ class LocalSearch():
                         res.vehicle = car1
                         res_car1.append(res)
                         changed_res.append(res)
+                        self.res_to_veh[car1.id].append(res)
         
         res_car2: List[Reservation] = []
         # assign all possible reservations for car2
@@ -316,6 +328,7 @@ class LocalSearch():
                         res.vehicle = car2
                         res_car2.append(res)
                         changed_res.append(res)
+                        self.res_to_veh[car2.id].append(res)
 
         # assign all possible neighbours to car1
         for res in self.reservations:
@@ -325,6 +338,7 @@ class LocalSearch():
                         res.vehicle = car1
                         res_car1.append(res)
                         changed_res.append(res)
+                        self.res_to_veh[car1.id].append(res)
 
         # assign all possible neighbours to car2
         for res in self.reservations:
@@ -334,6 +348,7 @@ class LocalSearch():
                         res.vehicle = car2
                         res_car2.append(res)
                         changed_res.append(res)
+                        self.res_to_veh[car2.id].append(res)
 
         return changed_res, changed_cost
 
