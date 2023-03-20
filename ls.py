@@ -58,6 +58,7 @@ class LocalSearch():
         self.zones: List[Zone] = zones
         self.vehicles: List[Vehicle] = vehicles
         self.interferences: List[List[bool]] = interferences
+        self.res_to_veh: List[List[int]] = [[] for _ in range(len(vehicles))]
         self.debug = False
 
 
@@ -65,7 +66,6 @@ class LocalSearch():
     def initialise(self):
         self.sortReservationsVehicles()
         used = []
-        res_per_veh = [[] for _ in range(len(self.vehicles))]
 
         for res in self.reservations:
             for posVeh in res.possibleVehicles:
@@ -73,7 +73,7 @@ class LocalSearch():
                     used.append(posVeh)
                     res.vehicle = self.vehicles[posVeh]
                     self.vehicles[posVeh].zone = res.zone
-                    res_per_veh[posVeh].append(res.id)
+                    self.res_to_veh[posVeh].append(res.id)
 
         self.sortReservationsID()
 
@@ -81,18 +81,20 @@ class LocalSearch():
         for vehicle in self.vehicles:
             for res in self.reservations:
                 if LocalSearch.vehiclePossible(vehicle, res):
-                    if not LocalSearch.doesListInterfere(res, [self.reservations[i] for i in res_per_veh[vehicle.id]]):
+                    if not LocalSearch.doesListInterfere(res, [self.reservations[i] for i in self.res_to_veh[vehicle.id]]):
                         res.vehicle = vehicle
-                        res_per_veh[vehicle.id].append(res.id)
+                        self.res_to_veh[vehicle.id].append(res.id)
 
 
         # loop for every vehicle through the list of reservations and look if a reservation can be added with a neighbour
         for vehicle in self.vehicles:
             for res in self.reservations:
                 if LocalSearch.vehiclePossible(vehicle, res):
-                    if not LocalSearch.doesListInterfere(res, [self.reservations[i] for i in res_per_veh[vehicle.id]]):
+                    if not LocalSearch.doesListInterfere(res, [self.reservations[i] for i in self.res_to_veh[vehicle.id]]):
                         res.vehicle = vehicle
-                        res_per_veh[vehicle.id].append(res.id)
+                        self.res_to_veh[vehicle.id].append(res.id)
+        
+        print(self.res_to_veh)
 
 
     # control
@@ -195,16 +197,6 @@ class LocalSearch():
         if self.debug:
             print(f"switch {car.id} to zone {zone.id}________________________")
         # delete reservations that will break
-        for res in self.reservations:
-            if res.vehicle == None:
-                continue
-            elif res.vehicle.id == car.id:
-                if res.zone.id not in zone.neighbours and res.zone.id != zone.id:
-                    if self.debug:
-                        print(f"removed: res{res.id} res.zone {res.zone}")
-                    res.vehicle = None
-                    changed_reservations.append(res)
-
         for res in self.reservations:
             if res.vehicle is not None:
                 if res.vehicle.id == car.id:
