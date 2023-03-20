@@ -37,7 +37,7 @@ def main():
     ls.active = True
     
     start_time = time.perf_counter()
-
+    itt = 0
     def run():
 
         end_time = time.perf_counter()
@@ -47,6 +47,7 @@ def main():
 
         ls.writeOutput(os.path.join("output", os.path.split(args.file)[-1]))
 
+        print(f"itteration : {itt}")
         print("init time: {time:.4f}".format(time=(init_time-start_time)))
         print("end  time: {time:.4f}".format(time=(end_time-start_time)))
 
