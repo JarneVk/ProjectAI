@@ -64,9 +64,22 @@ def main():
     print("initial solution: ",ls.checkAll())
 
     amount_v = len(ls.vehicles)
+    prevcost = 0
     while(ls.active):
         # select a random vehicle
         ls.switchCarToNeighbours(int(random.random()*amount_v))
+        newcost = ls.calculateFullCosts()
+        if newcost - prevcost > 0:
+            prevcost = newcost
+            imStuckStepBro = 0
+        elif imStuckStepBro == 100:
+            # do big opperant
+            print(f"random reset, new cost => {ls.calculateFullCosts()}")
+            imStuckStepBro = 0
+        else:
+            imStuckStepBro += 1
+
+        itt += 1
     
 
 if __name__ == "__main__":
