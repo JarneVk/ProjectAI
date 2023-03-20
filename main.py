@@ -39,19 +39,19 @@ def main():
     start_time = time.perf_counter()
     itt = 0
     def run():
-
+        ls.active = False
         end_time = time.perf_counter()
 
         print("last solution is :" + str(ls.checkNew(ls.lastBestReservations)))
-        print(init_cost, " => ", ls.calculateFullCosts())
+        print(init_cost, " => ", ls.calculateBestCosts())
 
         ls.writeOutput(os.path.join("output", os.path.split(args.file)[-1]))
 
-        print(f"itteration : {itt}")
+        print(f"itterations : {itt}")
         print("init time: {time:.4f}".format(time=(init_time-start_time)))
         print("end  time: {time:.4f}".format(time=(end_time-start_time)))
 
-        ls.active = False
+        
 
     timer = th.Timer(args.time, run)
     timer.start()
@@ -69,17 +69,6 @@ def main():
     while(ls.active):
         # select a random vehicle
         ls.switchCarToNeighbours(int(random.random()*amount_v))
-        newcost = ls.calculateFullCosts()
-        if newcost - prevcost > 0:
-            prevcost = newcost
-            imStuckStepBro = 0
-        elif imStuckStepBro == 100:
-            # do big opperant
-            print(f"random reset, new cost => {ls.calculateFullCosts()}")
-            imStuckStepBro = 0
-        else:
-            imStuckStepBro += 1
-
         itt += 1
     
 

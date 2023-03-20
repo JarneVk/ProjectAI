@@ -2,6 +2,8 @@ from typing import *
 from DataStructure import *
 from copy import deepcopy
 
+import random
+
 
 class LocalSearch():
 
@@ -60,6 +62,9 @@ class LocalSearch():
         self.interferences: List[List[bool]] = interferences
         self.res_to_veh: List[List[int]] = [[] for _ in range(len(vehicles))]
         self.debug = False
+
+        self.stuckCount = 0
+        self.prevCost = 1000000
 
 
     # Initialisatie
@@ -143,6 +148,25 @@ class LocalSearch():
 
         total_cost = 0
         for res in self.reservations:
+
+            # res not assigned
+            if res.vehicle == None:
+                total_cost += res.p1
+
+            # res assigned car in own zone
+            elif res.vehicle.zone == res.zone:
+                total_cost += 0
+
+            # res assigned in car in neighbouring zone 
+            elif res.vehicle.zone.id in res.zone.neighbours:
+                total_cost += res.p2
+
+        return total_cost
+    
+    def calculateBestCosts(self) -> int:
+
+        total_cost = 0
+        for res in self.lastBestReservations:
 
             # res not assigned
             if res.vehicle == None:
@@ -250,8 +274,8 @@ class LocalSearch():
 
     def switchCarToNeighbours(self, car: int) -> List[Reservation]:
 
-        self.lastBestReservations = deepcopy(self.reservations)
-        self.lastBestVehicles = deepcopy(self.vehicles)
+        # self.lastBestReservations = deepcopy(self.reservations)
+        # self.lastBestVehicles = deepcopy(self.vehicles)
 
         currentBestCost = self.calculateFullCosts()
         reservationsBest = deepcopy(self.reservations)
@@ -259,25 +283,43 @@ class LocalSearch():
         new_reservationsBest = reservationsBest
         new_vehiclesBest = vehiclesBest
 
-        for z in self.vehicles[car].zone.neighbours:
-            changedReservations: List[Reservation] = self.carToZone(self.vehicles[car], self.zones[z])
-            cost = self.calculateFullCosts()
+        newCost = self.calculateFullCosts()
+        if newCost - self.prevCost < 0:
+            self.prevCost = newCost
+            self.stuckCount =0
+            opperator = "medium"
+        elif self.stuckCount == 100:
+            print("do big opp")
+            opperator = "big"
 
-            # change is correct
-            if cost < currentBestCost and self.checkNew(changedReservations):
-                currentBestCost = cost
-                new_reservationsBest = deepcopy(self.reservations)
-                new_vehiclesBest = deepcopy(self.vehicles)
-                self.lastBestReservations = deepcopy(self.reservations)
-                self.lastBestVehicles = deepcopy(self.vehicles)
-                # print("found better cost")
-            # change is not correct
-            else:
-                self.reservations = deepcopy(reservationsBest)
-                self.vehicles = deepcopy(vehiclesBest)
-                
-        self.reservations = new_reservationsBest
-        self.vehicles = new_vehiclesBest
+        else:
+            opperator = "medium"
+            self.stuckCount +=1
+
+        if opperator == "medium":
+            for z in self.vehicles[car].zone.neighbours:
+                changedReservations: List[Reservation] = self.carToZone(self.vehicles[car], self.zones[z])
+                cost = self.calculateFullCosts()
+
+                # change is correct
+                if cost < currentBestCost and self.checkNew(changedReservations):
+                    currentBestCost = cost
+                    new_reservationsBest = deepcopy(self.reservations)
+                    new_vehiclesBest = deepcopy(self.vehicles)
+                    self.lastBestReservations = deepcopy(self.reservations)
+                    self.lastBestVehicles = deepcopy(self.vehicles)
+                    # print("found better cost")
+                # change is not correct
+                else:
+                    self.reservations = deepcopy(self.lastBestReservations)
+                    self.vehicles = deepcopy(self.lastBestVehicles)
+            self.reservations = new_reservationsBest
+            self.vehicles = new_vehiclesBest
+        
+        elif opperator == "big":
+            changedReservations,_ = self.carZoneSwitch(self.vehicles[int(random.random()*len(self.vehicles))],self.vehicles[int(random.random()*len(self.vehicles))])
+            self.prevCost = self.calculateFullCosts()
+        
     
     def smallPPOperator(self, reservation: Reservation):
         # change vehicle from reservation
@@ -356,7 +398,7 @@ class LocalSearch():
     # output
     def writeOutput(self, filename: str):
         with open(filename, 'w') as file:
-            file.write(f"{self.calculateFullCosts()}\n")
+            file.write(f"{self.calculateBestCosts()}\n")
             file.write(f"+Vehicle assignments\n")
 
             for vehicle in self.lastBestVehicles:
