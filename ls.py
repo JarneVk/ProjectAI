@@ -284,17 +284,16 @@ class LocalSearch():
         new_vehiclesBest = vehiclesBest
 
         newCost = self.calculateFullCosts()
-        if newCost - self.prevCost < 0:
+        if newCost < self.prevCost:
             self.prevCost = newCost
-            self.stuckCount =0
+            self.stuckCount = 0
             opperator = "medium"
-        elif self.stuckCount == 100:
+        elif self.stuckCount == len(self.vehicles) * 2:
             print("do big opp")
             opperator = "big"
-
         else:
             opperator = "medium"
-            self.stuckCount +=1
+            self.stuckCount += 1
 
         if opperator == "medium":
             for z in self.vehicles[car].zone.neighbours:
