@@ -281,7 +281,12 @@ class LocalSearch():
     
     def smallPPOperator(self, reservation: Reservation):
         # change vehicle from reservation
-        None
+        for vehicle in self.vehicles:
+            if vehicle.zone == reservation.zone.id and vehicle.id != reservation.vehicle.id:
+                # change vehicle to this reservation
+                if not LocalSearch.doesListInterfere(reservation, self.res_to_veh[vehicle.id]):
+                    reservation.vehicle = vehicle
+                    self.res_to_veh[vehicle.id].append(reservation)
 
     def carZoneSwitch(self, car1: Vehicle, car2: Vehicle) -> Tuple[List[Reservation], int]:
 
