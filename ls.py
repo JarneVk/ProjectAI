@@ -58,7 +58,7 @@ class LocalSearch():
         self.zones: List[Zone] = zones
         self.vehicles: List[Vehicle] = vehicles
         self.interferences: List[List[bool]] = interferences
-        self.res_to_veh: List[List[int]] = [[] for _ in range(len(vehicles))]
+        self.res_to_veh: List[List[Reservation]] = [[] for _ in range(len(vehicles))]
         self.debug = False
 
 
@@ -73,7 +73,7 @@ class LocalSearch():
                     used.append(posVeh)
                     res.vehicle = self.vehicles[posVeh]
                     self.vehicles[posVeh].zone = res.zone
-                    self.res_to_veh[posVeh].append(res.id)
+                    self.res_to_veh[posVeh].append(res)
 
         self.sortReservationsID()
 
@@ -81,21 +81,21 @@ class LocalSearch():
         for vehicle in self.vehicles:
             for res in self.reservations:
                 if LocalSearch.vehiclePossible(vehicle, res):
-                    if not LocalSearch.doesListInterfere(res, [self.reservations[i] for i in self.res_to_veh[vehicle.id]]):
+                    if not LocalSearch.doesListInterfere(res, self.res_to_veh[vehicle.id]):
                         res.vehicle = vehicle
-                        self.res_to_veh[vehicle.id].append(res.id)
+                        self.res_to_veh[vehicle.id].append(res)
 
 
         # loop for every vehicle through the list of reservations and look if a reservation can be added with a neighbour
         for vehicle in self.vehicles:
             for res in self.reservations:
                 if LocalSearch.vehiclePossible(vehicle, res):
-                    if not LocalSearch.doesListInterfere(res, [self.reservations[i] for i in self.res_to_veh[vehicle.id]]):
+                    if not LocalSearch.doesListInterfere(res, self.res_to_veh[vehicle.id]):
                         res.vehicle = vehicle
-                        self.res_to_veh[vehicle.id].append(res.id)
+                        self.res_to_veh[vehicle.id].append(res)
         
-        print(self.res_to_veh)
-
+        self.lastBestReservations = deepcopy(self.reservations)
+        self.lastBestVehicles = deepcopy(self.vehicles)
 
     # control
     def checkAll(self) -> bool:
@@ -282,11 +282,20 @@ class LocalSearch():
     def smallPPOperator(self, reservation: Reservation):
         # change vehicle from reservation
         for vehicle in self.vehicles:
-            if vehicle.zone == reservation.zone.id and vehicle.id != reservation.vehicle.id:
+            if vehicle.zone.id == reservation.zone.id and vehicle != reservation.vehicle and vehicle.id in reservation.possibleVehicles:
                 # change vehicle to this reservation
+                for res in self.res_to_veh[vehicle.id]:
+                    if LocalSearch.doesInterfere(res, reservation):
+                        res.vehicle = None
+                        self.reservations[res.id].vehicle = None
+                        self.res_to_veh[vehicle.id].remove(res)
+                        break
+
                 if not LocalSearch.doesListInterfere(reservation, self.res_to_veh[vehicle.id]):
                     reservation.vehicle = vehicle
                     self.res_to_veh[vehicle.id].append(reservation)
+                    print("changed reservation to different vehicle")
+        
 
     def carZoneSwitch(self, car1: Vehicle, car2: Vehicle) -> Tuple[List[Reservation], int]:
 
