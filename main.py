@@ -42,7 +42,8 @@ def main():
 
         end_time = time.perf_counter()
 
-        print("last solution is :" + str(ls.checkNew(ls.lastBestReservations)))
+        print("last solution is: " + str(ls.checkNew(ls.lastBestReservations)))
+        print(ls.checkAll())
         print(init_cost, " => ", ls.calculateFullCosts())
 
         ls.writeOutput(os.path.join("output", os.path.split(args.file)[-1]))
@@ -67,6 +68,7 @@ def main():
     while(ls.active):
         # select a random vehicle
         ls.switchCarToNeighbours(int(random.random()*amount_v))
+        # ls.smallPPOperator(ls.reservations[0])
     
 
 if __name__ == "__main__":
