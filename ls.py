@@ -278,6 +278,10 @@ class LocalSearch():
                 
         self.reservations = new_reservationsBest
         self.vehicles = new_vehiclesBest
+    
+    def smallPPOperator(self, reservation: Reservation):
+        # change vehicle from reservation
+        None
 
     def carZoneSwitch(self, car1: Vehicle, car2: Vehicle) -> Tuple[List[Reservation], int]:
 

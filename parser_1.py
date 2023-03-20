@@ -77,6 +77,8 @@ def doesInterfere(res1: DataStructure.Reservation, res2: DataStructure.Reservati
         return True
     elif start_1 < end_2 and end_2 < end_1:
         return True
+    elif start_1 <= end_2 and start_2 <= end_1:
+            return True
     return False
 
 def reservationInterfeer(resList:list[DataStructure.Reservation]):
