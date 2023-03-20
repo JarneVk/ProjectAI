@@ -4,20 +4,12 @@ import sys
 import os
 from pprint import pprint
 import argparse
-import threading
 import signal
 import random
+import threading as th
 
 from ls import LocalSearch
 
-def thread_function(time_out):
-    time.sleep(time_out)
-    print("sending signal SIGINT now")
-    signal.raise_signal(signal.SIGBREAK)
-
-def signal_catcher(signum, stack_frame):
-    print("catched signal")
-    raise Exception("TIMEOUT")
 
 def main():
     #############################################################################
@@ -35,37 +27,19 @@ def main():
 
     args = parser.parse_args()
 
-    signal.signal(signal.SIGBREAK, signal_catcher)
+    random.seed(args.seed)
 
-    x = threading.Thread(target=thread_function, args=(args.time, ))
-    x.start()
+    init_time = 0
+    init_cost = 0
 
-    random.seed(10)
+    reservations, zones, vehicles, interferences = parser_1.read_file(args.file)
+    ls = LocalSearch(reservations, zones, vehicles, interferences, debug = args.verbose)
+    ls.active = True
+    
+    start_time = time.perf_counter()
 
-    try:
-        start_time = time.perf_counter()
+    def run():
 
-        reservations, zones, vehicles, interferences = parser_1.read_file(args.file)
-
-        ls = LocalSearch(reservations, zones, vehicles, interferences, debug = args.verbose)
-
-        init_time = time.perf_counter()
-
-        ls.initialise()
-
-        init_cost = ls.calculateFullCosts()
-
-        print("initial solution: ",ls.checkAll())
-
-        amount_v = len(ls.vehicles)
-        while(True):
-            #select a random vehicle
-            ls.switchCarToNeighbours(int(random.random()*amount_v))
-
-    except Exception as ex:
-        print(f"exception {ex}")
-
-    finally:
         end_time = time.perf_counter()
 
         print("last solution is :" + str(ls.checkNew(ls.lastBestReservations)))
@@ -75,6 +49,25 @@ def main():
 
         print("init time: {time:.4f}".format(time=(init_time-start_time)))
         print("end  time: {time:.4f}".format(time=(end_time-start_time)))
+
+        ls.active = False
+
+    timer = th.Timer(args.time, run)
+    timer.start()
+
+    init_time = time.perf_counter()
+
+    ls.initialise()
+
+    init_cost = ls.calculateFullCosts()
+
+    print("initial solution: ",ls.checkAll())
+
+    amount_v = len(ls.vehicles)
+    while(ls.active):
+        #select a random vehicle
+        ls.switchCarToNeighbours(int(random.random()*amount_v))
+    
 
 if __name__ == "__main__":
     main()
