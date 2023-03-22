@@ -1,6 +1,8 @@
 from typing import *
 from DataStructure import *
 from copy import deepcopy
+from pprint import pprint
+import random
 
 
 class LocalSearch():
@@ -49,8 +51,11 @@ class LocalSearch():
         
         return False
     
-    def vehiclePossible(vehicle: Vehicle, res: Reservation) -> bool:
+    def vehiclePossibleOwn(vehicle: Vehicle, res: Reservation) -> bool:
         return res.zone.id == vehicle.zone.id and res.vehicle is None and vehicle.id in res.possibleVehicles
+    
+    def vehiclePossibleNeighbour(vehicle: Vehicle, res: Reservation) -> bool:
+        return vehicle.zone.id in res.zone.neighbours and res.vehicle is None and vehicle.id in res.possibleVehicles
 
 
     def __init__(self, reservations: List[Reservation], zones: List[Zone], vehicles: List[Vehicle], interferences: List[List[bool]], debug: bool = False) -> None:
@@ -61,10 +66,22 @@ class LocalSearch():
         self.res_to_veh: List[List[Reservation]] = [[] for _ in range(len(vehicles))]
         self.debug = False
 
+    def setVehicleIfNotInterfere(self, reservation: Reservation, vehicle: Vehicle):
+            if not LocalSearch.doesListInterfere(reservation, self.res_to_veh[vehicle.id]):
+                reservation.vehicle = vehicle
+                self.res_to_veh[vehicle.id].append(reservation)
 
     # Initialisatie
     def initialise(self):
         self.sortReservationsVehicles()
+
+        self.res_to_veh = [[] for _ in range(len(self.vehicles))]
+        for veh in self.vehicles:
+            veh.zone = None
+        for res in self.reservations:
+            res.vehicle = None
+
+        random.shuffle(self.reservations)
         used = []
 
         for res in self.reservations:
@@ -78,24 +95,24 @@ class LocalSearch():
         self.sortReservationsID()
 
         # loop for every vehicle through the list of reservations sorted by zone and look if you can add more than 1
+
         for vehicle in self.vehicles:
             for res in self.reservations:
-                if LocalSearch.vehiclePossible(vehicle, res):
-                    if not LocalSearch.doesListInterfere(res, self.res_to_veh[vehicle.id]):
-                        res.vehicle = vehicle
-                        self.res_to_veh[vehicle.id].append(res)
+                if LocalSearch.vehiclePossibleOwn(vehicle, res):
+                    self.setVehicleIfNotInterfere(res, vehicle)
 
 
         # loop for every vehicle through the list of reservations and look if a reservation can be added with a neighbour
         for vehicle in self.vehicles:
             for res in self.reservations:
-                if LocalSearch.vehiclePossible(vehicle, res):
-                    if not LocalSearch.doesListInterfere(res, self.res_to_veh[vehicle.id]):
-                        res.vehicle = vehicle
-                        self.res_to_veh[vehicle.id].append(res)
+                if LocalSearch.vehiclePossibleNeighbour(vehicle, res):
+                # if vehicle.zone.id in res.zone.neighbours and res.vehicle is None and vehicle.id in res.possibleVehicles:
+                    self.setVehicleIfNotInterfere(res, vehicle)
         
         self.lastBestReservations = deepcopy(self.reservations)
         self.lastBestVehicles = deepcopy(self.vehicles)
+
+        self.currentBestCostBig = self.calculateFullCosts()
 
     # control
     def checkAll(self) -> bool:
@@ -210,19 +227,18 @@ class LocalSearch():
         for reservation in self.reservations:
             # assign all possible reservations for that zone
             if (reservation.zone.id == zone.id) and (reservation.vehicle is None) and (car.id in reservation.possibleVehicles):
-                if not LocalSearch.doesListInterfere(reservation,changed_reservations):
+                if not LocalSearch.doesListInterfere(reservation, self.res_to_veh[car.id]):
                     reservation.vehicle = car
                     car.zone = zone
                     assigned = True
                     changed_reservations.append(reservation)
                     self.res_to_veh[car.id].append(reservation)
-                
 
         #check for cars that can get a better cost
         for res in self.reservations:
             if reservation.vehicle != None:
                 if(reservation.zone.id == zone.id) and (reservation.vehicle.zone.id != zone.id) and (car.id in reservation.possibleVehicles):
-                    if not LocalSearch.doesListInterfere(res,changed_reservations):
+                    if not LocalSearch.doesListInterfere(res, self.res_to_veh[car.id]):
                         reservation.vehicle = car
                         car.zone = zone
                         assigned = True
@@ -233,7 +249,7 @@ class LocalSearch():
         for reservation in self.reservations:
             # also assign possible neigbours
             if reservation.vehicle is None and zone.id in reservation.zone.neighbours and (car.id in reservation.possibleVehicles):
-                if not LocalSearch.doesListInterfere(reservation,changed_reservations):
+                if not LocalSearch.doesListInterfere(reservation, self.res_to_veh[car.id]):
                     reservation.vehicle = car
                     car.zone = zone
                     assigned = True
@@ -256,8 +272,7 @@ class LocalSearch():
         currentBestCost = self.calculateFullCosts()
         reservationsBest = deepcopy(self.reservations)
         vehiclesBest = deepcopy(self.vehicles)
-        new_reservationsBest = reservationsBest
-        new_vehiclesBest = vehiclesBest
+        self.currentBestCostBig = currentBestCost
 
         for z in self.vehicles[car].zone.neighbours:
             changedReservations: List[Reservation] = self.carToZone(self.vehicles[car], self.zones[z])
@@ -266,35 +281,43 @@ class LocalSearch():
             # change is correct
             if cost < currentBestCost and self.checkNew(changedReservations):
                 currentBestCost = cost
-                new_reservationsBest = deepcopy(self.reservations)
-                new_vehiclesBest = deepcopy(self.vehicles)
                 self.lastBestReservations = deepcopy(self.reservations)
                 self.lastBestVehicles = deepcopy(self.vehicles)
+                self.currentBestCostBig = currentBestCost
                 # print("found better cost")
             # change is not correct
             else:
                 self.reservations = deepcopy(reservationsBest)
                 self.vehicles = deepcopy(vehiclesBest)
                 
-        self.reservations = new_reservationsBest
-        self.vehicles = new_vehiclesBest
-    
-    def smallPPOperator(self, reservation: Reservation):
-        # change vehicle from reservation
-        for vehicle in self.vehicles:
-            if vehicle.zone.id == reservation.zone.id and vehicle != reservation.vehicle and vehicle.id in reservation.possibleVehicles:
-                # change vehicle to this reservation
-                for res in self.res_to_veh[vehicle.id]:
-                    if LocalSearch.doesInterfere(res, reservation):
-                        res.vehicle = None
-                        self.reservations[res.id].vehicle = None
-                        self.res_to_veh[vehicle.id].remove(res)
-                        break
+        self.reservations = self.lastBestReservations
+        self.vehicles = self.lastBestVehicles
 
-                if not LocalSearch.doesListInterfere(reservation, self.res_to_veh[vehicle.id]):
-                    reservation.vehicle = vehicle
-                    self.res_to_veh[vehicle.id].append(reservation)
-                    print("changed reservation to different vehicle")
+    def optimise(self):
+        self.lastBestReservations = deepcopy(self.reservations)
+        self.currentBestCostSmall = self.currentBestCostBig
+
+        for i in range(len(self.reservations)):
+            self.smallPPOperator(self.reservations[i])
+            cost = self.calculateFullCosts()
+
+            if cost < self.currentBestCostSmall and self.checkAll():
+                # better solution
+                self.lastBestReservations = deepcopy(self.reservations)
+                print("new best cost found!")
+                self.currentBestCostSmall = cost
+            else:
+                self.reservations = deepcopy(self.lastBestReservations)
+
+    def smallPPOperator(self, reservation: Reservation):
+        if LocalSearch.calculateCost(reservation) == 0:
+            return
+        # change vehicle from reservation to possible vehicle in own zone
+        for vehicle in self.vehicles:
+            if vehicle.zone == reservation.zone and vehicle.id in reservation.possibleVehicles and not LocalSearch.doesListInterfere(reservation, self.res_to_veh[vehicle.id]):
+                reservation.vehicle = vehicle
+                self.res_to_veh[vehicle.id].append(reservation)
+                print(f"switched res{reservation.id} to vehicle{vehicle.id}")
         
 
     def carZoneSwitch(self, car1: Vehicle, car2: Vehicle) -> Tuple[List[Reservation], int]:
@@ -326,7 +349,7 @@ class LocalSearch():
         # assign all possible reservations for car1
         for res in self.reservations:
             if res.zone == zone2:
-                if LocalSearch.vehiclePossible(car1, res):
+                if LocalSearch.vehiclePossibleOwn(car1, res):
                     if not LocalSearch.doesListInterfere(res, res_car1):
                         res.vehicle = car1
                         res_car1.append(res)
@@ -337,7 +360,7 @@ class LocalSearch():
         # assign all possible reservations for car2
         for res in self.reservations:
             if res.zone == zone1:
-                if LocalSearch.vehiclePossible(car2, res):
+                if LocalSearch.vehiclePossibleOwn(car2, res):
                     if not LocalSearch.doesListInterfere(res, res_car2):
                         res.vehicle = car2
                         res_car2.append(res)
@@ -347,7 +370,7 @@ class LocalSearch():
         # assign all possible neighbours to car1
         for res in self.reservations:
             if res.zone in car1.zone.neighbours:
-                if LocalSearch.vehiclePossible(car1, res):
+                if LocalSearch.vehiclePossibleNeighbour(car1, res):
                     if not LocalSearch.doesListInterfere(res, res_car1):
                         res.vehicle = car1
                         res_car1.append(res)
@@ -357,7 +380,7 @@ class LocalSearch():
         # assign all possible neighbours to car2
         for res in self.reservations:
             if res.zone in car2.zone.neighbours:
-                if LocalSearch.vehiclePossible(car2, res):
+                if LocalSearch.vehiclePossibleNeighbour(car2, res):
                     if not LocalSearch.doesListInterfere(res, res_car2):
                         res.vehicle = car2
                         res_car2.append(res)
