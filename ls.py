@@ -72,7 +72,7 @@ class LocalSearch():
                 self.res_to_veh[vehicle.id].append(reservation)
 
     # Initialisatie
-    def initialise(self):
+    def initialise(self, random_bool = False):
         self.sortReservationsVehicles()
 
         self.res_to_veh = [[] for _ in range(len(self.vehicles))]
@@ -81,7 +81,9 @@ class LocalSearch():
         for res in self.reservations:
             res.vehicle = None
 
-        random.shuffle(self.reservations)
+        
+        if random_bool:
+            random.shuffle(self.reservations)
         used = []
 
         for res in self.reservations:
@@ -205,9 +207,48 @@ class LocalSearch():
         # res assigned in car in neighbouring zone 
         elif reservation.vehicle.zone.id in reservation.zone.neighbours:
             return reservation.p2
-    
-    
+        
+    def addLastCost(self, cost: int):
+        self.lastCosts.pop(0)
+        self.lastCosts.append(cost)
+        
     # localSearch
+
+    def run(self):
+        self.lastCosts = [0, 0, 0, 0, 0]
+        self.currentBestCost = 1000000
+        self.initialise(random_bool=False)
+        # while active, initialise, while no plateau, do medium op, while no plateau, do small op
+        while self.active:
+
+            self.bestBigCost = self.calculateFullCosts()
+            if self.currentBestCost > self.bestBigCost:
+                self.currentBestCost = self.bestBigCost
+                print(f"new currentBestCost: {self.currentBestCost}")
+
+            while self.bestBigCost != self.lastCosts[0]:
+                self.switchCarToNeighbours(int(random.random() * len(self.vehicles)))
+                cost = self.calculateFullCosts()
+                self.addLastCost(cost)
+                self.bestBigCost = cost
+                if self.currentBestCost > self.bestBigCost:
+                    self.currentBestCost = self.bestBigCost
+                    print(f"Medium operator: cost: {self.currentBestCost}")
+                
+            self.bestSmallCost = self.bestBigCost
+            print("starting small cost")
+            
+            while self.bestSmallCost != self.lastCosts[0]:
+                self.optimise()
+                cost = self.calculateFullCosts()
+                self.addLastCost(cost)
+                self.bestSmallCost = cost
+                if self.currentBestCost > self.bestSmallCost:
+                    self.currentBestCost = self.bestSmallCost
+                    print(f"Small operator: cost: {self.currentBestCost}")
+            
+            self.initialise(random_bool=True)
+
     def carToZone(self, car: Vehicle, zone: Zone) -> List[Reservation]:
         changed_reservations: List[Reservation] = []
 
