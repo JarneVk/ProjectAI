@@ -42,18 +42,19 @@ def main():
 
     def run():
 
+        ls.active = False
         end_time = time.perf_counter()
 
-        print("last solution is: " + str(ls.checkNew(ls.lastBestReservations)))
+        print("last solution is: " + str(ls.checkAll()))
         print(ls.checkAll())
-        print(init_cost, " => ", ls.currentBestCost)
+        print(init_cost, " => ", ls.bestBigCost)
 
         ls.writeOutput(os.path.join("output", os.path.split(args.file)[-1]))
 
         print("init time: {time:.4f}".format(time=(init_time-start_time)))
         print("end  time: {time:.4f}".format(time=(end_time-start_time)))
 
-        ls.active = False
+        
 
     timer = th.Timer(args.time, run)
     timer.start()
@@ -66,40 +67,8 @@ def main():
 
     print("initial solution: ",ls.checkAll())
 
-    last_costs = [init_cost, 0, 0, 0, 0]
-    lowest_cost = init_cost
-
-    cost = ls.calculateFullCosts()
-
-    amount_v = len(ls.vehicles)
-
     ls.run()
-    # while(ls.active):
-    #     # select a random vehicle
-    #     while(last_costs[0] != cost):
-    #         ls.switchCarToNeighbours(int(random.random()*amount_v))
-    #         cost = ls.calculateFullCosts()
-    #         if cost < lowest_cost:
-    #             lowest_cost = cost
-    #         last_costs.pop(0)
-    #         last_costs.append(cost)
-
-        
-    #     #     # print("plateau found at: ", ls.calculateFullCosts())
-    #     ls.optimise()
-    #     print("cost after optimisation: ", ls.calculateFullCosts())
-    #     if ls.calculateFullCosts() < lowest_cost:
-    #         lowest_cost = ls.calculateFullCosts()
-    #     ls.initialise()
-    #         # ls.initialise()
-    #     #     # for _ in range(len(ls.reservations) * 10):
-    #     #         # ls.smallPPOperator(ls.reservations[int(random.random()*len(ls.reservations))])
-    #     #     cost = ls.calculateFullCosts()
-
-    #     #     # if cost == last_cost:
-    #     #         # ls.initialise()            
-    #     last_costs.pop(0)
-    #     last_costs.append(cost)        
+       
 
 if __name__ == "__main__":
     main()
