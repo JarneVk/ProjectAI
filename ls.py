@@ -3,7 +3,7 @@ from DataStructure import *
 from copy import deepcopy
 from pprint import pprint
 import random
-
+from datetime import datetime
 
 class LocalSearch():
 
@@ -110,11 +110,6 @@ class LocalSearch():
                 if LocalSearch.vehiclePossibleNeighbour(vehicle, res):
                 # if vehicle.zone.id in res.zone.neighbours and res.vehicle is None and vehicle.id in res.possibleVehicles:
                     self.setVehicleIfNotInterfere(res, vehicle)
-        
-        self.lastBestReservations = deepcopy(self.reservations)
-        self.lastBestVehicles = deepcopy(self.vehicles)
-
-        self.currentBestCostBig = self.calculateFullCosts()
 
     # control
     def checkAll(self) -> bool:
@@ -122,7 +117,7 @@ class LocalSearch():
         for car in self.vehicles:
             # every car needs a zone
             if car.zone == None:
-                print(f"auto {car.id} does not have a zone assigned")
+                # print(f"auto {car.id} does not have a zone assigned")
                 return False
             
         for res in self.reservations:
@@ -134,7 +129,7 @@ class LocalSearch():
             # two reservations for the same car intervene
             for indx, inter in enumerate(self.interferences[res.id]):
                 if inter == True and res.vehicle == self.reservations[indx].vehicle:
-                    print(f"overlapping reservations r1: {res.id} | r2: {self.reservations[indx].id}")
+                    # print(f"overlapping reservations r1: {res.id} | r2: {self.reservations[indx].id}")
                     return False
 
         return True
@@ -207,50 +202,65 @@ class LocalSearch():
         # res assigned in car in neighbouring zone 
         elif reservation.vehicle.zone.id in reservation.zone.neighbours:
             return reservation.p2
-        
-    def addLastCost(self, cost: int):
-        self.lastCosts.pop(0)
-        self.lastCosts.append(cost)
+    
+        else:
+            return reservation.p1
         
     # localSearch
 
+    def commit(self):
+        self.currentBestRes = deepcopy(self.reservations)
+        self.currentBestVeh = deepcopy(self.vehicles)
+
+    def restore(self):
+        self.reservations = deepcopy(self.currentBestRes)
+        self.vehicles = deepcopy(self.currentBestVeh)
+
     def run(self):
         self.lastCosts = [0, 0, 0, 0, 0]
-        self.currentBestCost = 1000000
-        self.initialise(random_bool=False)
+        threshold = 0
+        age = 0
+
+        self.currentBestRes = deepcopy(self.reservations)
+        self.currentBestVeh = deepcopy(self.vehicles)
+
+        self.bestBigCost = self.calculateFullCosts()
         # while active, initialise, while no plateau, do medium op, while no plateau, do small op
         while self.active:
 
-            self.bestBigCost = self.calculateFullCosts()
-            if self.currentBestCost > self.bestBigCost:
-                self.currentBestCost = self.bestBigCost
-                print(f"new currentBestCost: {self.currentBestCost}")
+            changed_res, cost_change = self.carToZone(self.vehicles[int(random.random()*len(self.vehicles))], self.zones[int(random.random()*len(self.zones))])
 
-            while self.bestBigCost != self.lastCosts[0]:
-                self.switchCarToNeighbours(int(random.random() * len(self.vehicles)))
-                cost = self.calculateFullCosts()
-                self.addLastCost(cost)
-                self.bestBigCost = cost
-                if self.currentBestCost > self.bestBigCost:
-                    self.currentBestCost = self.bestBigCost
-                    print(f"Medium operator: cost: {self.currentBestCost}")
-                
-            self.bestSmallCost = self.bestBigCost
-            print("starting small cost")
-            
-            while self.bestSmallCost != self.lastCosts[0]:
-                self.optimise()
-                cost = self.calculateFullCosts()
-                self.addLastCost(cost)
-                self.bestSmallCost = cost
-                if self.currentBestCost > self.bestSmallCost:
-                    self.currentBestCost = self.bestSmallCost
-                    print(f"Small operator: cost: {self.currentBestCost}")
-            
-            self.initialise(random_bool=True)
+            if self.checkNew(changed_res) and self.calculateFullCosts() < self.bestBigCost + threshold:
+                # new cost is lower than the threshold
+                self.commit()
 
-    def carToZone(self, car: Vehicle, zone: Zone) -> List[Reservation]:
+                age = 0
+
+                self.bestBigCost = self.calculateFullCosts()
+                print(f"[{datetime.now().strftime('%H:%M:%S')}]: new currentBestCost: {self.bestBigCost}, threshold: {threshold}")
+            
+            else:
+                age += 1
+
+                self.restore()
+                # print(f"restore!")
+
+                if age > 5:
+                    for _ in range(2):
+                        if self.optimise():
+                            age = 0
+            
+                if age > 20:
+                    self.carToZone(self.vehicles[int(random.random()*len(self.vehicles))], self.vehicles[int(random.random()*len(self.vehicles))])
+                    print("randomised")
+
+            threshold = (age/10)
+        
+        print(f"[{datetime.now().strftime('%H:%M:%S')}]: end with cost: {self.bestBigCost}")
+
+    def carToZone(self, car: Vehicle, zone: Zone) -> Tuple[List[Reservation], int]:
         changed_reservations: List[Reservation] = []
+        cost_change = 0
 
         if self.debug:
             print(f"switch {car.id} to zone {zone.id}________________________")
@@ -261,8 +271,8 @@ class LocalSearch():
         for res in self.reservations:
             if res.vehicle is not None:
                 if res.vehicle.id == car.id:
+                   cost_change -= LocalSearch.calculateCost(res)
                    res.vehicle = None
-
 
         assigned = False
         for reservation in self.reservations:
@@ -274,6 +284,7 @@ class LocalSearch():
                     assigned = True
                     changed_reservations.append(reservation)
                     self.res_to_veh[car.id].append(reservation)
+                    cost_change += LocalSearch.calculateCost(reservation)
 
         #check for cars that can get a better cost
         for res in self.reservations:
@@ -285,6 +296,7 @@ class LocalSearch():
                         assigned = True
                         changed_reservations.append(reservation)
                         self.res_to_veh[car.id].append(reservation)
+                        cost_change += LocalSearch.calculateCost(reservation)
 
 
         for reservation in self.reservations:
@@ -296,6 +308,7 @@ class LocalSearch():
                     assigned = True
                     changed_reservations.append(reservation)
                     self.res_to_veh[car.id].append(reservation)
+                    cost_change += LocalSearch.calculateCost(reservation)
     
 
         if self.debug:
@@ -303,52 +316,24 @@ class LocalSearch():
         if not assigned and self.debug:
             print("not possible to assign vehicle to zone")
 
-        return changed_reservations
+        return changed_reservations, cost_change
 
-    def switchCarToNeighbours(self, car: int) -> List[Reservation]:
-
-        self.lastBestReservations = deepcopy(self.reservations)
-        self.lastBestVehicles = deepcopy(self.vehicles)
-
-        currentBestCost = self.calculateFullCosts()
-        reservationsBest = deepcopy(self.reservations)
-        vehiclesBest = deepcopy(self.vehicles)
-        self.currentBestCostBig = currentBestCost
-
-        for z in self.vehicles[car].zone.neighbours:
-            changedReservations: List[Reservation] = self.carToZone(self.vehicles[car], self.zones[z])
-            cost = self.calculateFullCosts()
-
-            # change is correct
-            if cost < currentBestCost and self.checkNew(changedReservations):
-                currentBestCost = cost
-                self.lastBestReservations = deepcopy(self.reservations)
-                self.lastBestVehicles = deepcopy(self.vehicles)
-                self.currentBestCostBig = currentBestCost
-                # print("found better cost")
-            # change is not correct
-            else:
-                self.reservations = deepcopy(reservationsBest)
-                self.vehicles = deepcopy(vehiclesBest)
-                
-        self.reservations = self.lastBestReservations
-        self.vehicles = self.lastBestVehicles
-
-    def optimise(self):
-        self.lastBestReservations = deepcopy(self.reservations)
-        self.currentBestCostSmall = self.currentBestCostBig
-
+    def optimise(self) -> bool:
+        optimised = False
         for i in range(len(self.reservations)):
             self.smallPPOperator(self.reservations[i])
             cost = self.calculateFullCosts()
 
-            if cost < self.currentBestCostSmall and self.checkAll():
+            if cost < self.bestBigCost and self.checkAll():
                 # better solution
-                self.lastBestReservations = deepcopy(self.reservations)
-                print("new best cost found!")
-                self.currentBestCostSmall = cost
+                self.commit()
+                self.bestBigCost = cost
+                print("optimised something")
+                optimised = True
             else:
-                self.reservations = deepcopy(self.lastBestReservations)
+                self.restore()
+        
+        return optimised
 
     def smallPPOperator(self, reservation: Reservation):
         if LocalSearch.calculateCost(reservation) == 0:
@@ -358,9 +343,8 @@ class LocalSearch():
             if vehicle.zone == reservation.zone and vehicle.id in reservation.possibleVehicles and not LocalSearch.doesListInterfere(reservation, self.res_to_veh[vehicle.id]):
                 reservation.vehicle = vehicle
                 self.res_to_veh[vehicle.id].append(reservation)
-                print(f"switched res{reservation.id} to vehicle{vehicle.id}")
+                # print(f"switched res{reservation.id} to vehicle{vehicle.id}")
         
-
     def carZoneSwitch(self, car1: Vehicle, car2: Vehicle) -> Tuple[List[Reservation], int]:
 
         if car1.zone is None or car2.zone is None:
@@ -437,18 +421,18 @@ class LocalSearch():
             file.write(f"{self.calculateFullCosts()}\n")
             file.write(f"+Vehicle assignments\n")
 
-            for vehicle in self.lastBestVehicles:
+            for vehicle in self.currentBestVeh:
                 file.write(f"car{vehicle.id};z{vehicle.zone.id}\n")
 
             file.write("+Assigned requests\n")
-            for reservation in self.lastBestReservations:
+            for reservation in self.currentBestRes:
                 if reservation.vehicle is None:
                     continue
                 else:
                     file.write(f"req{reservation.id};car{reservation.vehicle.id}\n")
 
             file.write("+Unassigned requests\n")
-            for reservation in self.lastBestReservations:
+            for reservation in self.currentBestRes:
                 if reservation.vehicle is None:
                     file.write(f"req{reservation.id}\n")
 
