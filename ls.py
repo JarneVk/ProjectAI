@@ -225,39 +225,50 @@ class LocalSearch():
         self.currentBestVeh = deepcopy(self.vehicles)
 
         self.bestBigCost = self.calculateFullCosts()
-        # while active, initialise, while no plateau, do medium op, while no plateau, do small op
         while self.active:
 
-            changed_res, cost_change = self.carToZone(self.vehicles[int(random.random()*len(self.vehicles))], self.zones[int(random.random()*len(self.zones))])
+            vehId = int(random.random()*len(self.vehicles))
+            localBestCost = self.bestBigCost
+            localBestRes  = deepcopy(self.currentBestRes)
+            localBestVeh  = deepcopy(self.currentBestVeh)
 
-            if self.checkNew(changed_res) and self.calculateFullCosts() < self.bestBigCost + threshold:
+            for i in range(len(self.zones)):                
+                # change vehicle to all zones and get best one
+                changed_res, cost_change = self.carToZone(self.vehicles[vehId], self.zones[i])
+                cost = self.calculateFullCosts()
+
+                if self.checkNew(changed_res) and cost < localBestCost + threshold:
+                    localBestCost = cost
+                    localBestRes  = deepcopy(self.reservations)
+                    localBestVeh  = deepcopy(self.vehicles)
+                else:
+                    self.reservations = deepcopy(localBestRes)
+                    self.vehicles     = deepcopy(localBestVeh)
+
+            cost = self.calculateFullCosts()
+            if self.checkNew(changed_res) and cost != self.bestBigCost and cost < self.bestBigCost + threshold:
                 # new cost is lower than the threshold
+                print(f"\nnew best cost found! {cost}")
                 self.commit()
 
                 age = 0
 
-                self.bestBigCost = self.calculateFullCosts()
-                print(f"[{datetime.now().strftime('%H:%M:%S')}]: new currentBestCost: {self.bestBigCost}, threshold: {threshold}")
+                self.bestBigCost = cost
             
             else:
+                print(f"age: {age}", end="\r")
                 age += 1
 
                 self.restore()
-                # print(f"restore!")
 
-                if age > 5:
+                if age > 15:
                     for _ in range(2):
                         if self.optimise():
+                            print(f"\nnew best small cost: {self.calculateFullCosts()}")
                             age = 0
             
-                if age > 10:
-                    self.carToZone(self.vehicles[int(random.random()*len(self.vehicles))], self.vehicles[int(random.random()*len(self.vehicles))])
-                    print("randomised")
-
-            threshold = (age/10)
+            threshold = (age)
         
-        print(f"[{datetime.now().strftime('%H:%M:%S')}]: end with cost: {self.bestBigCost}")
-
     def carToZone(self, car: Vehicle, zone: Zone) -> Tuple[List[Reservation], int]:
         changed_reservations: List[Reservation] = []
         cost_change = 0
@@ -328,7 +339,7 @@ class LocalSearch():
                 # better solution
                 self.commit()
                 self.bestBigCost = cost
-                print("optimised something")
+                # print("optimised something")
                 optimised = True
             else:
                 self.restore()

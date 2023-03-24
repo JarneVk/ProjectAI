@@ -27,8 +27,7 @@ def main():
 
     args = parser.parse_args()
 
-    if args.seed != 69:
-        random.seed(args.seed)
+    random.seed(args.seed)
 
     init_time = 0
     init_cost = 0
@@ -53,6 +52,9 @@ def main():
 
         print("init time: {time:.4f}".format(time=(init_time-start_time)))
         print("end  time: {time:.4f}".format(time=(end_time-start_time)))
+
+        with open("restuls.txt", "a") as file:
+            file.write(f"seed: {args.seed}; time: {args.time}; result: {ls.bestBigCost}\n")
 
         
 
