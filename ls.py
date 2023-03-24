@@ -219,25 +219,29 @@ class LocalSearch():
     def run(self):
         self.lastCosts = [0, 0, 0, 0, 0]
         threshold = 0
-        age = 0
+        age = 1
 
         self.currentBestRes = deepcopy(self.reservations)
         self.currentBestVeh = deepcopy(self.vehicles)
 
         self.bestBigCost = self.calculateFullCosts()
+        self.smallestCost = deepcopy(self.bestBigCost)
+        self.smallestRes = deepcopy(self.currentBestRes)
+        self.smallestVeh = deepcopy(self.currentBestVeh)
+
         while self.active:
 
-            vehicle = random.choice(self.vehicles)
+            vehicleId = int(random.random()*len(self.vehicles))
             localBestCost = self.bestBigCost
             localBestRes  = deepcopy(self.currentBestRes)
             localBestVeh  = deepcopy(self.currentBestVeh)
 
             for i in range(len(self.zones)):                
                 # change vehicle to all zones and get best one
-                changed_res, cost_change = self.carToZone(vehicle, self.zones[i])
+                changed_res, cost_change = self.carToZone(self.vehicles[vehicleId], self.zones[i])
                 cost = self.calculateFullCosts()
 
-                if self.checkNew(changed_res) and cost < localBestCost + threshold:
+                if self.checkAll() and cost < localBestCost + threshold:
                     localBestCost = cost
                     localBestRes  = deepcopy(self.reservations)
                     localBestVeh  = deepcopy(self.vehicles)
@@ -246,29 +250,43 @@ class LocalSearch():
                     self.vehicles     = deepcopy(localBestVeh)
 
             cost = self.calculateFullCosts()
-            if self.checkNew(changed_res) and cost != self.bestBigCost and cost < self.bestBigCost + threshold:
+            if self.checkAll() and cost != self.bestBigCost and cost < self.bestBigCost + threshold:
                 # new cost is lower than the threshold
                 print(f"\nnew best cost found! {cost}")
                 self.commit()
 
-                age = 0
+                age /= 2
 
                 self.bestBigCost = cost
+
+                if self.bestBigCost < self.smallestCost:
+                    self.smallestCost = self.bestBigCost
+                    self.smallestRes = deepcopy(self.currentBestRes)
+                    self.smallestVeh = deepcopy(self.currentBestVeh)
             
             else:
                 print(f"age: {age}", end="\r")
-                age += 1
+                age *= 1.5
 
                 self.restore()
 
-                if age > 15:
+                if age > 11:
+                    self.carZoneSwitch(self.vehicles[int(random.random()*len(self.vehicles))], self.vehicles[int(random.random()*len(self.vehicles))])
+                    age /= 4
+
+                elif age > 10:
                     for _ in range(2):
                         if self.optimise():
-                            print(f"\nnew best small cost: {self.calculateFullCosts()}")
-                            age = 0
+                            cost = self.calculateFullCosts()
+                            print(f"\nnew best small cost: {cost}")
 
-                elif age > 30:
-                    self.carZoneSwitch(random.choice(self.vehicles), random.choice(self.vehicles))
+                            if cost < self.smallestCost + threshold and self.checkAll():
+                                self.smallestCost = cost
+                                self.smallestRes = deepcopy(self.reservations)
+                                self.smallestVeh = deepcopy(self.vehicles)
+                            age /= 2
+
+                
             
             threshold = (age)
         
@@ -285,16 +303,18 @@ class LocalSearch():
         for res in self.reservations:
             if res.vehicle is not None:
                 if res.vehicle.id == car.id:
-                   cost_change -= LocalSearch.calculateCost(res)
+                #    cost_change -= LocalSearch.calculateCost(res)
                    res.vehicle = None
 
+        
         assigned = False
+        car.zone = zone
+
         for reservation in self.reservations:
             # assign all possible reservations for that zone
             if (reservation.zone.id == zone.id) and (reservation.vehicle is None) and (car.id in reservation.possibleVehicles):
                 if not LocalSearch.doesListInterfere(reservation, self.res_to_veh[car.id]):
                     reservation.vehicle = car
-                    car.zone = zone
                     assigned = True
                     changed_reservations.append(reservation)
                     self.res_to_veh[car.id].append(reservation)
@@ -306,7 +326,6 @@ class LocalSearch():
                 if(reservation.zone.id == zone.id) and (reservation.vehicle.zone.id != zone.id) and (car.id in reservation.possibleVehicles):
                     if not LocalSearch.doesListInterfere(res, self.res_to_veh[car.id]):
                         reservation.vehicle = car
-                        car.zone = zone
                         assigned = True
                         changed_reservations.append(reservation)
                         self.res_to_veh[car.id].append(reservation)
@@ -318,7 +337,6 @@ class LocalSearch():
             if reservation.vehicle is None and zone.id in reservation.zone.neighbours and (car.id in reservation.possibleVehicles):
                 if not LocalSearch.doesListInterfere(reservation, self.res_to_veh[car.id]):
                     reservation.vehicle = car
-                    car.zone = zone
                     assigned = True
                     changed_reservations.append(reservation)
                     self.res_to_veh[car.id].append(reservation)
@@ -432,21 +450,21 @@ class LocalSearch():
     # output
     def writeOutput(self, filename: str):
         with open(filename, 'w') as file:
-            file.write(f"{self.calculateFullCosts()}\n")
+            file.write(f"{self.smallestCost}\n")
             file.write(f"+Vehicle assignments\n")
 
-            for vehicle in self.currentBestVeh:
+            for vehicle in self.smallestVeh:
                 file.write(f"car{vehicle.id};z{vehicle.zone.id}\n")
 
             file.write("+Assigned requests\n")
-            for reservation in self.currentBestRes:
+            for reservation in self.smallestRes:
                 if reservation.vehicle is None:
                     continue
                 else:
                     file.write(f"req{reservation.id};car{reservation.vehicle.id}\n")
 
             file.write("+Unassigned requests\n")
-            for reservation in self.currentBestRes:
+            for reservation in self.smallestRes:
                 if reservation.vehicle is None:
                     file.write(f"req{reservation.id}\n")
 

@@ -44,9 +44,9 @@ def main():
         ls.active = False
         end_time = time.perf_counter()
 
-        print("last solution is: " + str(ls.checkAll()))
+        print("last solution is: " + str(ls.checkNew(ls.smallestRes)))
         print(ls.checkAll())
-        print(init_cost, " => ", ls.bestBigCost)
+        print(init_cost, " => ", ls.smallestCost)
 
         ls.writeOutput(os.path.join("output", os.path.split(args.file)[-1]))
 
@@ -54,7 +54,7 @@ def main():
         print("end  time: {time:.4f}".format(time=(end_time-start_time)))
 
         with open("restuls.txt", "a") as file:
-            file.write(f"seed: {args.seed}; time: {args.time}; result: {ls.bestBigCost}\n")
+            file.write(f"seed: {args.seed}; time: {args.time}; result: {ls.smallestCost}\n")
 
         
 
