@@ -227,14 +227,14 @@ class LocalSearch():
         self.bestBigCost = self.calculateFullCosts()
         while self.active:
 
-            vehId = int(random.random()*len(self.vehicles))
+            vehicle = random.choice(self.vehicles)
             localBestCost = self.bestBigCost
             localBestRes  = deepcopy(self.currentBestRes)
             localBestVeh  = deepcopy(self.currentBestVeh)
 
             for i in range(len(self.zones)):                
                 # change vehicle to all zones and get best one
-                changed_res, cost_change = self.carToZone(self.vehicles[vehId], self.zones[i])
+                changed_res, cost_change = self.carToZone(vehicle, self.zones[i])
                 cost = self.calculateFullCosts()
 
                 if self.checkNew(changed_res) and cost < localBestCost + threshold:
@@ -266,6 +266,9 @@ class LocalSearch():
                         if self.optimise():
                             print(f"\nnew best small cost: {self.calculateFullCosts()}")
                             age = 0
+
+                elif age > 30:
+                    self.carZoneSwitch(random.choice(self.vehicles), random.choice(self.vehicles))
             
             threshold = (age)
         
