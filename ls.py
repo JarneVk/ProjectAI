@@ -241,7 +241,7 @@ class LocalSearch():
                 changed_res, cost_change = self.carToZone(self.vehicles[vehicleId], self.zones[i])
                 cost = self.calculateFullCosts()
 
-                if self.checkAll() and cost < localBestCost + threshold:
+                if self.checkNew(changed_res) and cost < localBestCost + threshold:
                     localBestCost = cost
                     localBestRes  = deepcopy(self.reservations)
                     localBestVeh  = deepcopy(self.vehicles)
@@ -255,7 +255,7 @@ class LocalSearch():
                 print(f"\nnew best cost found! {cost}")
                 self.commit()
 
-                age /= 2
+                age = 1
 
                 self.bestBigCost = cost
 
@@ -272,23 +272,19 @@ class LocalSearch():
 
                 if age > 11:
                     self.carZoneSwitch(self.vehicles[int(random.random()*len(self.vehicles))], self.vehicles[int(random.random()*len(self.vehicles))])
-                    age /= 4
 
-                elif age > 10:
-                    for _ in range(2):
-                        if self.optimise():
-                            cost = self.calculateFullCosts()
-                            print(f"\nnew best small cost: {cost}")
+                if age > 10:
+                    if self.optimise():
+                        cost = self.calculateFullCosts()
+                        print(f"\nnew best small cost: {cost}")
 
-                            if cost < self.smallestCost + threshold and self.checkAll():
-                                self.smallestCost = cost
-                                self.smallestRes = deepcopy(self.reservations)
-                                self.smallestVeh = deepcopy(self.vehicles)
-                            age /= 2
+                        if cost < self.smallestCost + threshold and self.checkAll():
+                            self.smallestCost = cost
+                            self.smallestRes = deepcopy(self.reservations)
+                            self.smallestVeh = deepcopy(self.vehicles)
+                        age /= 2
 
-                
-            
-            threshold = (age)
+            threshold = (age * 2)
         
     def carToZone(self, car: Vehicle, zone: Zone) -> Tuple[List[Reservation], int]:
         changed_reservations: List[Reservation] = []
