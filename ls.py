@@ -296,16 +296,34 @@ class LocalSearch():
         # delete reservations that will break
         self.res_to_veh[car.id] = []
 
+        car.zone = zone
+
         for res in self.reservations:
             if res.vehicle is not None:
                 if res.vehicle.id == car.id:
                 #    cost_change -= LocalSearch.calculateCost(res)
-                   res.vehicle = None
+                    res.vehicle = None
+
+                    #check if deleted res can be assigned to car in his onw zone
+                    for v in self.vehicles:
+                        if v.zone == None:
+                            continue
+                        if (res.zone.id == v.zone.id) and (v.id in res.possibleVehicles):
+                            vehres = []
+                            for r in self.reservations:
+                                if r.vehicle == None:
+                                    continue
+                                if r.vehicle.id == v.id:
+                                    vehres.append(r)
+                            if not LocalSearch.doesListInterfere(res, vehres):
+                                res.vehicle = v
+                                changed_reservations.append(res)
+                                self.res_to_veh[v.id].append(res)
+                                cost_change += LocalSearch.calculateCost(res)
 
         
         assigned = False
-        car.zone = zone
-
+    
         for reservation in self.reservations:
             # assign all possible reservations for that zone
             if (reservation.zone.id == zone.id) and (reservation.vehicle is None) and (car.id in reservation.possibleVehicles):
@@ -441,6 +459,7 @@ class LocalSearch():
                         self.res_to_veh[car2.id].append(res)
 
         return changed_res, changed_cost
+    
 
     
     # output
