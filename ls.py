@@ -270,6 +270,11 @@ class LocalSearch():
 
                 self.restore()
 
+                if age > 17:
+                    print("reassign reservations")
+                    self.BigOp_reassignReservations()
+                    age = 1
+
                 if age > 11:
                     self.carZoneSwitch(self.vehicles[int(random.random()*len(self.vehicles))], self.vehicles[int(random.random()*len(self.vehicles))])
 
@@ -460,6 +465,29 @@ class LocalSearch():
 
         return changed_res, changed_cost
     
+    
+    def BigOp_reassignReservations(self):
+        #remove all reservations 
+        for r in self.reservations:
+            r.vehicle = None
+
+        random.shuffle(self.reservations)
+
+        #reassign vehicles
+        for res in self.reservations:
+            for v in self.vehicles:
+                if (res.zone.id == v.zone.id) and (v.id in res.possibleVehicles):
+                            vehres = []
+                            for r in self.reservations:
+                                if r.vehicle == None:
+                                    continue
+                                if r.vehicle.id == v.id:
+                                    vehres.append(r)
+                            if not LocalSearch.doesListInterfere(res, vehres):
+                                res.vehicle = v
+                                self.res_to_veh[v.id].append(res)
+                                continue
+
 
     
     # output
